@@ -6,6 +6,8 @@ import AuthoritySection from "@/components/AuthoritySection";
 import OfferSection from "@/components/OfferSection";
 import FaqSection from "@/components/FaqSection";
 import FooterSection from "@/components/FooterSection";
+import SocialProofToast from "@/components/SocialProofToast";
+import FloatingCTA from "@/components/FloatingCTA";
 
 const Index = () => {
   return (
@@ -18,6 +20,8 @@ const Index = () => {
       <OfferSection />
       <FaqSection />
       <FooterSection />
+      <SocialProofToast />
+      <FloatingCTA />
     </main>
   );
 };
