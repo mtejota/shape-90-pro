@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import AnimatedSection from "@/components/AnimatedSection";
 
 const faqs = [
   {
@@ -28,27 +29,31 @@ const FaqSection = () => {
   return (
     <section className="py-20 md:py-28">
       <div className="container">
-        <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase text-center mb-12">
-          Perguntas <span className="text-gradient-red">frequentes</span>
-        </h2>
-        <div className="max-w-2xl mx-auto">
-          <Accordion type="single" collapsible className="space-y-3">
-            {faqs.map((faq, i) => (
-              <AccordionItem
-                key={i}
-                value={`faq-${i}`}
-                className="bg-card border border-border rounded-lg px-6"
-              >
-                <AccordionTrigger className="font-heading text-base font-semibold uppercase hover:no-underline">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
+        <AnimatedSection>
+          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase text-center mb-12">
+            Perguntas <span className="text-gradient-red">frequentes</span>
+          </h2>
+        </AnimatedSection>
+        <AnimatedSection delay={0.2}>
+          <div className="max-w-2xl mx-auto">
+            <Accordion type="single" collapsible className="space-y-3">
+              {faqs.map((faq, i) => (
+                <AccordionItem
+                  key={i}
+                  value={`faq-${i}`}
+                  className="bg-card border border-border rounded-lg px-6 hover:border-primary/30 transition-colors duration-300"
+                >
+                  <AccordionTrigger className="font-heading text-base font-semibold uppercase hover:no-underline">
+                    {faq.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </AnimatedSection>
       </div>
     </section>
   );
