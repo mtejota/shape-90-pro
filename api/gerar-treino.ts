@@ -65,3 +65,5 @@ Responda de forma organizada, profissional e clara.
 
   res.status(200).json({ resultado: response.choices[0].message.content });
 }
+
+
