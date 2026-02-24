@@ -157,16 +157,61 @@ export async function gerarPDF(resultado: string, dadosAluno: any) {
 
   const linhas = safe(resultado).split("\n");
 
+linhas.forEach((linha) => {
+  const textoLimpo = linha.replace(/\*\*/g, "").trim();
+
+  if (!textoLimpo) {
+    y += 4;
+    return;
+  }
+
+  // TITULO NIVEL 1 (###)
+  if (textoLimpo.startsWith("###")) {
+    y += 6;
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    text(C.vermelho);
+    pdf.text(textoLimpo.replace("###", "").trim(), mX, y);
+    y += 8;
+    return;
+  }
+
+  // TITULO NIVEL 2 (##)
+  if (textoLimpo.startsWith("##")) {
+    y += 6;
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(11);
+    text(C.branco);
+    pdf.text(textoLimpo.replace("##", "").trim(), mX, y);
+    y += 7;
+    return;
+  }
+
+  // BULLET
+  if (textoLimpo.startsWith("-")) {
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    text(C.cinzaClaro);
+
+    const conteudo = textoLimpo.replace("-", "•");
+    const wrapped = pdf.splitTextToSize(conteudo, cW - 5);
+
+    chk(wrapped.length * 5 + 4);
+    pdf.text(wrapped, mX + 4, y);
+    y += wrapped.length * 5 + 4;
+    return;
+  }
+
+  // TEXTO NORMAL
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(9);
   text(C.cinzaClaro);
 
-  linhas.forEach((linha) => {
-    const wrapped = pdf.splitTextToSize(linha.replace(/\*\*/g, ""), cW);
-    chk(wrapped.length * 5 + 4);
-    pdf.text(wrapped, mX, y);
-    y += wrapped.length * 5 + 4;
-  });
+  const wrapped = pdf.splitTextToSize(textoLimpo, cW);
+  chk(wrapped.length * 5 + 4);
+  pdf.text(wrapped, mX, y);
+  y += wrapped.length * 5 + 4;
+});
 
   // ───────────────────────────────────────────────
   // CHECKLIST
