@@ -101,7 +101,9 @@ export async function gerarPDF(resultado: string, dadosAluno: {
     dadosAluno.objetivo === "definicao" ? "Definição" : "Recomposição";
   const nivel = dadosAluno.nivel === "iniciante" ? "Iniciante" :
     dadosAluno.nivel === "intermediario" ? "Intermediário" : "Avançado";
-  const imc = (Number(dadosAluno.peso) / ((Number(dadosAluno.altura) / 100) ** 2)).toFixed(1);
+  const pesoNum = Number(String(dadosAluno.peso).replace(",", "."));
+  const alturaNum = Number(String(dadosAluno.altura).replace(",", "."));
+  const imc = (pesoNum / ((alturaNum / 100) ** 2)).toFixed(1);
 
   const col1 = marginX + 8;
   const col2 = pw / 2 + 5;
@@ -175,14 +177,28 @@ export async function gerarPDF(resultado: string, dadosAluno: {
     else if (linha.startsWith("### ") || linha.startsWith("#### ")) {
       checarPagina(16);
       const texto = linha.replace(/^#{3,4} /, "");
-      // Barra vermelha lateral
       pdf.setFillColor(...vermelho);
       pdf.rect(marginX, y - 4, 3, 10, "F");
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(11);
       pdf.setTextColor(...vermelho);
       pdf.text(texto.toUpperCase(), marginX + 7, y + 3);
-      // Linha abaixo
+      pdf.setDrawColor(...vermelhoEscuro);
+      pdf.setLineWidth(0.3);
+      pdf.line(marginX + 7, y + 5, pw - marginX, y + 5);
+      y += 14;
+    }
+
+    // Seção numerada tipo "1. TÍTULO" ou "1. Título" — render como header vermelho
+    else if (/^\d+\.\s+[A-ZÁÉÍÓÚ]/.test(linha)) {
+      checarPagina(18);
+      const textoLimpo = linha.replace(/\*\*/g, "");
+      pdf.setFillColor(...vermelho);
+      pdf.rect(marginX, y - 4, 3, 10, "F");
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(11);
+      pdf.setTextColor(...vermelho);
+      pdf.text(textoLimpo.toUpperCase(), marginX + 7, y + 3);
       pdf.setDrawColor(...vermelhoEscuro);
       pdf.setLineWidth(0.3);
       pdf.line(marginX + 7, y + 5, pw - marginX, y + 5);
@@ -207,20 +223,16 @@ export async function gerarPDF(resultado: string, dadosAluno: {
       const cardH = 22 + (props.length > 0 ? 14 : 0);
       checarPagina(cardH + 4);
 
-      // Card do exercício
       pdf.setFillColor(...cinzaEscuro);
       pdf.roundedRect(marginX, y, contentWidth, cardH, 2, 2, "F");
       pdf.setDrawColor(50, 50, 50);
       pdf.setLineWidth(0.3);
       pdf.roundedRect(marginX, y, contentWidth, cardH, 2, 2, "S");
-
-      // Nome do exercício
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(10);
       pdf.setTextColor(...branco);
       pdf.text(nome, marginX + 5, y + 8);
 
-      // Badges das propriedades
       if (props.length > 0) {
         const badgeW = contentWidth / props.length - 4;
         props.forEach((p, idx) => {
@@ -244,16 +256,68 @@ export async function gerarPDF(resultado: string, dadosAluno: {
       continue;
     }
 
-    // Item de lista
-    else if (linha.startsWith("- ") && !linha.match(/^- (Séries|Repetições|Descanso|Tempo):/)) {
-      const texto = linha.replace(/^- /, "").replace(/\*\*/g, "");
-      const wrapped = pdf.splitTextToSize(`• ${texto}`, contentWidth - 8);
-      checarPagina(wrapped.length * 5 + 3);
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(9);
-      pdf.setTextColor(...cinzaClaro);
-      pdf.text(wrapped, marginX + 4, y);
-      y += wrapped.length * 5 + 2;
+    // Item de lista com • (bullet unicode) ou - (hífen)
+    else if (linha.startsWith("• ") || (linha.startsWith("- ") && !linha.match(/^- (Séries|Repetições|Descanso|Tempo):/))) {
+      const texto = linha.replace(/^[•\-]\s+/, "").replace(/\*\*/g, "");
+      // Detectar padrão "Exercício - X séries de Y repetições (Z seg)"
+      const matchExercicio = texto.match(/^(.+?)\s+-\s+(\d+)\s+séries?\s+de\s+(.+?)\s*(?:\((.+?)\))?$/i);
+      if (matchExercicio) {
+        const [, nome, series, reps, descanso] = matchExercicio;
+        const props = [
+          { label: "Séries", valor: series },
+          { label: "Reps", valor: reps },
+          ...(descanso ? [{ label: "Descanso", valor: descanso }] : []),
+        ];
+        const cardH = 22 + 14;
+        checarPagina(cardH + 4);
+
+        pdf.setFillColor(...cinzaEscuro);
+        pdf.roundedRect(marginX, y, contentWidth, cardH, 2, 2, "F");
+        pdf.setDrawColor(50, 50, 50);
+        pdf.setLineWidth(0.3);
+        pdf.roundedRect(marginX, y, contentWidth, cardH, 2, 2, "S");
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(10);
+        pdf.setTextColor(...branco);
+        pdf.text(nome.trim(), marginX + 5, y + 8);
+
+        const badgeW = contentWidth / props.length - 4;
+        props.forEach((p, idx) => {
+          const bx = marginX + idx * (badgeW + 4) + 2;
+          const by = y + 12;
+          pdf.setFillColor(15, 15, 15);
+          pdf.roundedRect(bx, by, badgeW, 10, 1, 1, "F");
+          pdf.setFont("helvetica", "normal");
+          pdf.setFontSize(7);
+          pdf.setTextColor(...cinzaMedio);
+          pdf.text(p.label.toUpperCase(), bx + badgeW / 2, by + 4, { align: "center" });
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(8);
+          pdf.setTextColor(...vermelho);
+          pdf.text(p.valor, bx + badgeW / 2, by + 8.5, { align: "center" });
+        });
+
+        y += cardH + 4;
+      } else {
+        const wrapped = pdf.splitTextToSize(`• ${texto}`, contentWidth - 8);
+        checarPagina(wrapped.length * 5 + 3);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+        pdf.setTextColor(...cinzaClaro);
+        pdf.text(wrapped, marginX + 4, y);
+        y += wrapped.length * 5 + 2;
+      }
+    }
+
+    // Linha "Dia da semana: Grupo muscular" — render como subheader
+    else if (/^(Segunda|Terça|Quarta|Quinta|Sexta|Sábado|Domingo)[-–:]/i.test(linha)) {
+      checarPagina(14);
+      const textoLimpo = linha.replace(/\*\*/g, "");
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(10);
+      pdf.setTextColor(...vermelho);
+      pdf.text(textoLimpo, marginX + 2, y);
+      y += 8;
     }
 
     // Separador ---
@@ -272,22 +336,13 @@ export async function gerarPDF(resultado: string, dadosAluno: {
 
     // Texto normal
     else {
-      const textoLimpo = linha.replace(/\*\*/g, "");
-      // Detecta se é um número de seção tipo "1. Análise..."
-      const ehSecao = /^\d+\.\s/.test(textoLimpo);
+      const textoLimpo = linha.replace(/\*\*/g, "").replace(/\\\[.*?\\\]/g, "");
+      if (!textoLimpo.trim()) { i++; continue; }
       const wrapped = pdf.splitTextToSize(textoLimpo, contentWidth - 4);
       checarPagina(wrapped.length * 5 + 3);
-
-      if (ehSecao) {
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(10);
-        pdf.setTextColor(...vermelho);
-      } else {
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(9);
-        pdf.setTextColor(...cinzaClaro);
-      }
-
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.setTextColor(...cinzaClaro);
       pdf.text(wrapped, marginX + 2, y);
       y += wrapped.length * 5 + 3;
     }
