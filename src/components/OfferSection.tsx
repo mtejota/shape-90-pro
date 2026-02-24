@@ -70,9 +70,16 @@ const OfferSection = () => {
               <p className="text-muted-foreground">
                 Plano de treino personalizado de 90 dias
               </p>
-              <Button variant="cta" size="xl" className="w-full">
-                COMEÇAR MEU PROJETO AGORA
-              </Button>
+              
+                <a href="https://pay.kiwify.com.br/RSdvsfe"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full block"
+              >
+                <Button variant="cta" size="xl" className="w-full">
+                  COMEÇAR MEU PROJETO AGORA
+                </Button>
+              </a>
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                   <Zap className="w-4 h-4 text-primary" />
