@@ -222,7 +222,7 @@ export default function Formulario() {
                 <option value="">Objetivo</option>
                 <option value="hipertrofia">Hipertrofia</option>
                 <option value="definicao">Definição</option>
-                <option value="recomposicao">Recomposição</option>
+                <option value="recomposicao">Emagrecimento</option>
               </select>
 
               <select name="nivel" required onChange={handleChange}
