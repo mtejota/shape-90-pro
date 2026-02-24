@@ -25,15 +25,12 @@ export default function Formulario() {
     if (form.objetivo === "hipertrofia") {
       return "Treino A/B focado em ganho de massa com progressão de carga.";
     }
-
     if (form.objetivo === "definicao") {
       return "Treino metabólico com foco em queima de gordura e alta intensidade.";
     }
-
     if (form.objetivo === "recomposicao") {
       return "Treino estratégico equilibrando força e condicionamento.";
     }
-
     return "Plano personalizado básico.";
   };
 
@@ -41,29 +38,45 @@ export default function Formulario() {
     if (!loading) return;
 
     setProgresso(0);
+    setMensagem("Iniciando análise...");
 
-    const interval = setInterval(() => {
-      setProgresso((prev) => {
-        const novo = prev + 10;
+    // Etapas com velocidades diferentes para simular análise real
+    const etapas = [
+      { limite: 15, incremento: 1, intervalo: 300, msg: "Iniciando análise..." },
+      { limite: 35, incremento: 1, intervalo: 400, msg: "Lendo seus dados pessoais..." },
+      { limite: 55, incremento: 1, intervalo: 350, msg: "Processando seus dados..." },
+      { limite: 75, incremento: 1, intervalo: 450, msg: "Cruzando informações..." },
+      { limite: 90, incremento: 1, intervalo: 500, msg: "Montando seu plano estratégico..." },
+      { limite: 100, incremento: 1, intervalo: 600, msg: "Finalizando estratégia..." },
+    ];
 
-        if (novo >= 100) {
-          clearInterval(interval);
-          const treino = gerarTreino();
+    let etapaAtual = 0;
+    let progressoAtual = 0;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const avancar = () => {
+      const etapa = etapas[etapaAtual];
+      progressoAtual += etapa.incremento;
+      setProgresso(progressoAtual);
+      setMensagem(etapa.msg);
+
+      if (progressoAtual >= etapa.limite) {
+        etapaAtual++;
+        if (etapaAtual >= etapas.length) {
           setTimeout(() => {
-            setResultado(treino);
+            setResultado(gerarTreino());
             setLoading(false);
-          }, 500);
+          }, 600);
+          return;
         }
+      }
 
-        if (novo >= 90) setMensagem("Finalizando estratégia...");
-        else if (novo >= 60) setMensagem("Cruzando informações...");
-        else if (novo >= 30) setMensagem("Processando seus dados...");
+      timer = setTimeout(avancar, etapas[etapaAtual]?.intervalo ?? 400);
+    };
 
-        return novo;
-      });
-    }, 200);
+    timer = setTimeout(avancar, etapas[0].intervalo);
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(timer);
   }, [loading]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -97,8 +110,16 @@ export default function Formulario() {
               <input name="altura" placeholder="Altura (cm)" required onChange={handleChange}
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600" />
 
-              <input name="dias" placeholder="Dias por semana" required onChange={handleChange}
-                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600" />
+              <select name="dias" required onChange={handleChange}
+                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600">
+                <option value="">Dias por semana</option>
+                <option value="2">2 dias</option>
+                <option value="3">3 dias</option>
+                <option value="4">4 dias</option>
+                <option value="5">5 dias</option>
+                <option value="6">6 dias</option>
+                <option value="7">7 dias</option>
+              </select>
 
               <select name="objetivo" required onChange={handleChange}
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600">
@@ -132,7 +153,7 @@ export default function Formulario() {
 
             <div className="w-full bg-zinc-800 rounded-full h-4 overflow-hidden">
               <div
-                className="bg-red-600 h-4 transition-all duration-200"
+                className="bg-red-600 h-4 transition-all duration-500"
                 style={{ width: `${progresso}%` }}
               />
             </div>
