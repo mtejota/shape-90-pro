@@ -91,21 +91,24 @@ Após salvar, faça um **redeploy** do projeto.
 Simule um pagamento da Kiwify com este comando (substitua a URL pela sua local):
 
 ```bash
-curl -X POST http://localhost:3000/api/webhook/kiwify \
+curl -X POST https://projeto90d.vercel.app/api/webhook/kiwify \
   -H "Content-Type: application/json" \
   -d '{
     "event": "order.paid",
     "order_id": "TESTE-001",
     "Customer": {
-      "email": "teste@gmail.com",
-      "full_name": "João Teste"
+      "email": "matheustjota23@gmail.com",
+      "full_name": "Matheus Teste"
     }
   }'
 ```
 
 Vai aparecer um token no banco. Acesse:
 ```
-http://localhost:3000/formulario?token=TOKEN_DO_BANCO
+
+http://localhost:3000/formulario?token=
+
+
 ```
 
 ---

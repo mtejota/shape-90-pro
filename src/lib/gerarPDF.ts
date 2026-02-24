@@ -1,15 +1,22 @@
 import jsPDF from "jspdf";
 
-const LOGO_BASE64 = "/9j/4AAQSkZJRgABAQAAAQABAAD/...";
+// ───────────────────────────────────────────────
+// SANITIZAÇÃO GLOBAL (CORREÇÃO DEFINITIVA)
+// ───────────────────────────────────────────────
 
 const limparTexto = (texto: string) => {
   return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove acentos
     .replace(/–/g, "-")
     .replace(/—/g, "-")
-    .replace(/[^\x00-\x7F]/g, "");
+    .replace(/✔/g, "-")
+    .replace(/[^\x00-\x7F]/g, ""); // remove qualquer caractere inválido
 };
 
-// ─── PALETA ───────────────────────────────────────────────
+const safe = (texto: string) => limparTexto(texto);
+
+// ─── PALETA ─────────────────────────────────────
 const C = {
   preto: [0, 0, 0] as [number, number, number],
   vermelho: [220, 38, 38] as [number, number, number],
@@ -20,23 +27,13 @@ const C = {
   cinzaMedio: [140, 140, 140] as [number, number, number],
   cinzaEscuro: [30, 30, 30] as [number, number, number],
   cinzaCard: [22, 22, 22] as [number, number, number],
-  cinzaBadge: [12, 12, 12] as [number, number, number],
   amareloAlerta: [200, 140, 0] as [number, number, number],
   verdeOk: [34, 197, 94] as [number, number, number],
 };
 
-export async function gerarPDF(
-  resultado: string,
-  dadosAluno: {
-    idade: string;
-    peso: string;
-    altura: string;
-    dias: string;
-    objetivo: string;
-    nivel: string;
-  }
-) {
+export async function gerarPDF(resultado: string, dadosAluno: any) {
   const pdf = new jsPDF("p", "mm", "a4");
+
   const pw = pdf.internal.pageSize.getWidth();
   const ph = pdf.internal.pageSize.getHeight();
   const mX = 14;
@@ -65,7 +62,7 @@ export async function gerarPDF(
   };
 
   // ───────────────────────────────────────────────
-  // CÁLCULOS E SCORE INTELIGENTE
+  // SCORE
   // ───────────────────────────────────────────────
 
   const pesoN = Number(dadosAluno.peso);
@@ -73,7 +70,6 @@ export async function gerarPDF(
   const imc = pesoN / ((altN / 100) ** 2);
 
   let scoreBase = 7;
-
   if (imc < 18.5) scoreBase -= 1;
   if (imc > 30) scoreBase -= 2;
   if (dadosAluno.nivel === "iniciante") scoreBase += 1;
@@ -83,10 +79,10 @@ export async function gerarPDF(
 
   const justificativaScore =
     score >= 8
-      ? "Seu perfil apresenta alto potencial de evolução muscular e resposta adaptativa eficiente."
+      ? "Seu perfil apresenta alto potencial de evolucao muscular."
       : score >= 6
-      ? "Seu potencial é sólido, com excelente margem de progresso mediante consistência."
-      : "Seu progresso exigirá foco estratégico e aderência rigorosa ao plano.";
+      ? "Seu potencial e solido com excelente margem de progresso."
+      : "Seu progresso exigira foco estrategico e aderencia ao plano.";
 
   // ───────────────────────────────────────────────
   // CAPA
@@ -95,16 +91,21 @@ export async function gerarPDF(
   fundoBase();
 
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(36);
+  pdf.setFontSize(34);
   text(C.vermelho);
-  pdf.text("PROJETO 90D", pw / 2, 70, { align: "center" });
+  pdf.text(safe("PROJETO 90D"), pw / 2, 70, { align: "center" });
 
   pdf.setFontSize(10);
   text(C.cinzaMedio);
-  pdf.text("PLANO ESTRATÉGICO DE TRANSFORMAÇÃO", pw / 2, 80, { align: "center" });
+  pdf.text(
+    safe("PLANO ESTRATEGICO DE TRANSFORMACAO"),
+    pw / 2,
+    80,
+    { align: "center" }
+  );
 
   // ───────────────────────────────────────────────
-  // SCORE PREMIUM
+  // DIAGNOSTICO
   // ───────────────────────────────────────────────
 
   novaPag();
@@ -112,7 +113,7 @@ export async function gerarPDF(
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(14);
   text(C.vermelho);
-  pdf.text("DIAGNÓSTICO ESTRATÉGICO", mX, y);
+  pdf.text(safe("DIAGNOSTICO ESTRATEGICO"), mX, y);
   y += 10;
 
   fill(C.cinzaCard);
@@ -122,7 +123,11 @@ export async function gerarPDF(
 
   pdf.setFontSize(11);
   text(C.branco);
-  pdf.text("SCORE DE POTENCIAL DE EVOLUÇÃO", mX + 10, y + 8);
+  pdf.text(
+    safe("SCORE DE POTENCIAL DE EVOLUCAO"),
+    mX + 10,
+    y + 8
+  );
 
   const barWidth = cW - 20;
   const barY = y + 15;
@@ -138,54 +143,25 @@ export async function gerarPDF(
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(9);
-  const wrappedScore = pdf.splitTextToSize(justificativaScore, cW - 20);
+  const wrappedScore = pdf.splitTextToSize(
+    safe(justificativaScore),
+    cW - 20
+  );
   pdf.text(wrappedScore, mX + 10, y + 28);
 
   y += 45;
 
   // ───────────────────────────────────────────────
-  // PERIODIZAÇÃO VISUAL
+  // CONTEUDO IA
   // ───────────────────────────────────────────────
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
-  text(C.vermelho);
-  pdf.text("PERIODIZAÇÃO ESTRATÉGICA – 90 DIAS", mX, y);
-  y += 8;
-
-  const fases = [
-    "FASE 1 (Semanas 1–4) – Base neural e adaptação estrutural",
-    "FASE 2 (Semanas 5–8) – Intensificação e sobrecarga progressiva",
-    "FASE 3 (Semanas 9–12) – Pico de performance e consolidação"
-  ];
-
-  fases.forEach(f => {
-    fill(C.cinzaCard);
-    pdf.roundedRect(mX, y, cW, 16, 2, 2, "F");
-    fill(C.vermelhoMid);
-    pdf.rect(mX, y, 5, 16, "F");
-
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(9);
-    text(C.branco);
-    pdf.text(f, mX + 10, y + 10);
-
-    y += 20;
-  });
-
-  y += 5;
-
-  // ───────────────────────────────────────────────
-  // CONTEÚDO GERADO PELA IA
-  // ───────────────────────────────────────────────
-
-  const linhas = limparTexto(resultado).split("\n");
+  const linhas = safe(resultado).split("\n");
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(9);
   text(C.cinzaClaro);
 
-  linhas.forEach(linha => {
+  linhas.forEach((linha) => {
     const wrapped = pdf.splitTextToSize(linha.replace(/\*\*/g, ""), cW);
     chk(wrapped.length * 5 + 4);
     pdf.text(wrapped, mX, y);
@@ -193,7 +169,7 @@ export async function gerarPDF(
   });
 
   // ───────────────────────────────────────────────
-  // SISTEMA DE ACOMPANHAMENTO
+  // CHECKLIST
   // ───────────────────────────────────────────────
 
   y += 10;
@@ -207,21 +183,25 @@ export async function gerarPDF(
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(11);
   text(C.vermelho);
-  pdf.text("SISTEMA DE ACOMPANHAMENTO SEMANAL", mX + 10, y + 8);
+  pdf.text(
+    safe("SISTEMA DE ACOMPANHAMENTO SEMANAL"),
+    mX + 10,
+    y + 8
+  );
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(9);
   text(C.cinzaClaro);
 
   const checklist = [
-    "✔ Registrar peso corporal 1x por semana",
-    "✔ Registrar cargas dos exercícios principais",
-    "✔ Avaliar recuperação e qualidade do sono",
-    "✔ Ajustar carga ao atingir topo da faixa de repetições"
+    "- Registrar peso corporal 1x por semana",
+    "- Registrar cargas dos exercicios principais",
+    "- Avaliar recuperacao e qualidade do sono",
+    "- Ajustar carga ao atingir topo da faixa de repeticoes",
   ];
 
   checklist.forEach((item, i) => {
-    pdf.text(item, mX + 10, y + 16 + i * 6);
+    pdf.text(safe(item), mX + 10, y + 16 + i * 6);
   });
 
   pdf.save("Projeto90D.pdf");
