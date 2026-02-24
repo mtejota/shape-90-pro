@@ -2,6 +2,13 @@ import jsPDF from "jspdf";
 
 const LOGO_BASE64 = "/9j/4AAQSkZJRgABAQAAAQABAAD/...";
 
+const limparTexto = (texto: string) => {
+  return texto
+    .replace(/–/g, "-")
+    .replace(/—/g, "-")
+    .replace(/[^\x00-\x7F]/g, "");
+};
+
 // ─── PALETA ───────────────────────────────────────────────
 const C = {
   preto: [0, 0, 0] as [number, number, number],
@@ -172,7 +179,7 @@ export async function gerarPDF(
   // CONTEÚDO GERADO PELA IA
   // ───────────────────────────────────────────────
 
-  const linhas = resultado.split("\n");
+  const linhas = limparTexto(resultado).split("\n");
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(9);
