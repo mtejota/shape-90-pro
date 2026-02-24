@@ -14,56 +14,104 @@ export default async function handler(req: any, res: any) {
   });
 
   const prompt = `
-Você é um personal trainer especialista em transformação física.
+Você é um personal trainer especialista em transformação corporal, periodização científica e hipertrofia baseada em evidência.
 
-Dados do aluno:
-Idade: ${idade}
-Peso: ${peso}kg
-Altura: ${altura}cm
-IMC: ${imc.toFixed(1)}
-Dias por semana: ${dias}
-Objetivo: ${objetivo}
-Nível: ${nivel}
+Crie um PLANO PREMIUM de transformação corporal em 90 dias.
 
-Gere um RELATÓRIO COMPLETO E PROFISSIONAL contendo:
+Use linguagem estratégica, técnica e personalizada.
 
-### 1. Análise Corporal
-Interprete o IMC e explique a situação atual.
+DADOS DO ALUNO:
+- Idade: ${idade}
+- Peso: ${peso}kg
+- Altura: ${altura}cm
+- IMC: ${imc.toFixed(1)}
+- Frequência semanal: ${dias} dias
+- Objetivo: ${objetivo}
+- Nível de treino: ${nivel}
 
-### 2. Estratégia Geral de Treino
-Explique como o plano será estruturado.
+⚠️ IMPORTANTE:
+Não gere um treino genérico.
+Explique decisões estratégicas com base nos dados.
+Adapte volume, intensidade e estrutura ao nível e objetivo.
 
-### 3. Divisão Semanal Organizada
-Monte o treino detalhado por dia com:
+Estruture EXATAMENTE na seguinte ordem:
+
+# PROJETO 90D – PLANO ESTRATÉGICO PERSONALIZADO
+
+##  Diagnóstico Corporal Estratégico
+- Interprete IMC de forma contextualizada
+- Analise potencial de recomposição corporal
+- Explique como idade e nível impactam resposta muscular
+- Gere um SCORE de Potencial de Evolução (0 a 10) com justificativa
+
+##  Estratégia Macro de Periodização (90 Dias)
+Divida em 3 Fases:
+
+### 🔹 FASE 1 (Semanas 1–4) – Adaptação Neural e Base Estrutural
+Explique foco fisiológico
+
+### 🔹 FASE 2 (Semanas 5–8) – Intensificação e Sobrecarga Progressiva
+Explique mudança estratégica
+
+### 🔹 FASE 3 (Semanas 9–12) – Pico de Performance e Consolidação
+Explique objetivo final da fase
+
+##  Estrutura Semanal Personalizada
+Monte divisão ideal para ${dias} dias respeitando objetivo ${objetivo} e nível ${nivel}.
+
+Para cada dia, inclua:
 - Exercícios
 - Séries
 - Repetições
-- Descanso
+- Tempo de descanso
+- Justificativa técnica breve
 
-### 4. Estratégia de Progressão (8–12 semanas)
-Explique como aumentar carga ou intensidade.
+## Estratégia Avançada de Progressão
+Explique:
+- Progressão de carga
+- Progressão de volume
+- Estratégia de deload se necessário
+- Como evitar platô
 
-### 5. Projeção de Evolução em 90 dias
-Explique possíveis resultados realistas.
+##  Projeção Realista de Evolução em 90 Dias
+- Estimativa de ganho de massa magra
+- Possível redução de gordura
+- Mudança visual esperada
+- Ajuste provável de IMC
 
-### 6. Estratégia de Cardio
-Personalizada conforme perfil.
+##  Estratégia Cardiovascular Personalizada
+Defina frequência, intensidade e objetivo metabólico conforme perfil.
 
-### 7. Recomendações Alimentares Básicas
-Direcionamento estratégico (sem prescrição clínica).
+##  Direcionamento Nutricional Estratégico
+- Estimativa de calorias
+- Faixa de proteína ideal baseada no peso
+- Estratégia de distribuição de macros
+- Estratégia para dias de treino vs descanso
 
-### 8. Alertas Baseados na Idade
-Cuidados e recomendações.
+##  Sistema de Acompanhamento
+Crie:
+- Métricas semanais de acompanhamento
+- Indicadores de progresso
+- Quando ajustar o plano
 
-Responda de forma organizada, profissional e clara.
+Linguagem:
+Profissional, estratégica, motivadora e altamente personalizada.
 `;
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
-    messages: [{ role: "user", content: prompt }],
+    temperature: 0.7,
+    messages: [
+      {
+        role: "system",
+        content:
+          "Você é um personal trainer de elite especializado em periodização científica, hipertrofia e recomposição corporal baseada em evidências.",
+      },
+      { role: "user", content: prompt },
+    ],
   });
 
-  res.status(200).json({ resultado: response.choices[0].message.content });
+  res.status(200).json({
+    resultado: response.choices[0].message.content,
+  });
 }
-
-
