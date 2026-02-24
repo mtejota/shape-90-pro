@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Formulario() {
   const [form, setForm] = useState({
@@ -12,6 +12,8 @@ export default function Formulario() {
 
   const [loading, setLoading] = useState(false);
   const [resultado, setResultado] = useState<string | null>(null);
+  const [progresso, setProgresso] = useState(0);
+  const [mensagem, setMensagem] = useState("Iniciando análise...");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -35,16 +37,38 @@ export default function Formulario() {
     return "Plano personalizado básico.";
   };
 
+  useEffect(() => {
+    if (!loading) return;
+
+    setProgresso(0);
+
+    const interval = setInterval(() => {
+      setProgresso((prev) => {
+        const novo = prev + 10;
+
+        if (novo >= 100) {
+          clearInterval(interval);
+          const treino = gerarTreino();
+          setTimeout(() => {
+            setResultado(treino);
+            setLoading(false);
+          }, 500);
+        }
+
+        if (novo >= 90) setMensagem("Finalizando estratégia...");
+        else if (novo >= 60) setMensagem("Cruzando informações...");
+        else if (novo >= 30) setMensagem("Processando seus dados...");
+
+        return novo;
+      });
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [loading]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoading(true);
-
-    setTimeout(() => {
-      const treinoGerado = gerarTreino();
-      setResultado(treinoGerado);
-      setLoading(false);
-    }, 2000); // 2 segundos de análise
   };
 
   return (
@@ -52,7 +76,8 @@ export default function Formulario() {
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
 
       <div className="relative w-full max-w-xl bg-zinc-900 p-8 rounded-2xl shadow-2xl border border-red-600/30">
-        {!resultado && (
+
+        {!resultado && !loading && (
           <>
             <h1 className="text-3xl font-bold text-white text-center mb-2">
               Gerar Meu Plano Personalizado
@@ -63,66 +88,36 @@ export default function Formulario() {
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <input
-                name="idade"
-                placeholder="Idade"
-                required
-                onChange={handleChange}
-                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600"
-              />
+              <input name="idade" placeholder="Idade" required onChange={handleChange}
+                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600" />
 
-              <input
-                name="peso"
-                placeholder="Peso (kg)"
-                required
-                onChange={handleChange}
-                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600"
-              />
+              <input name="peso" placeholder="Peso (kg)" required onChange={handleChange}
+                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600" />
 
-              <input
-                name="altura"
-                placeholder="Altura (cm)"
-                required
-                onChange={handleChange}
-                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600"
-              />
+              <input name="altura" placeholder="Altura (cm)" required onChange={handleChange}
+                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600" />
 
-              <input
-                name="dias"
-                placeholder="Dias por semana"
-                required
-                onChange={handleChange}
-                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600"
-              />
+              <input name="dias" placeholder="Dias por semana" required onChange={handleChange}
+                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600" />
 
-              <select
-                name="objetivo"
-                required
-                onChange={handleChange}
-                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600"
-              >
+              <select name="objetivo" required onChange={handleChange}
+                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600">
                 <option value="">Objetivo</option>
                 <option value="hipertrofia">Hipertrofia</option>
                 <option value="definicao">Definição</option>
                 <option value="recomposicao">Recomposição</option>
               </select>
 
-              <select
-                name="nivel"
-                required
-                onChange={handleChange}
-                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600"
-              >
+              <select name="nivel" required onChange={handleChange}
+                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600">
                 <option value="">Nível</option>
                 <option value="iniciante">Iniciante</option>
                 <option value="intermediario">Intermediário</option>
                 <option value="avancado">Avançado</option>
               </select>
 
-              <button
-                type="submit"
-                className="mt-4 bg-red-600 hover:bg-red-700 transition p-4 rounded-lg font-bold text-white text-lg shadow-lg"
-              >
+              <button type="submit"
+                className="mt-4 bg-red-600 hover:bg-red-700 transition p-4 rounded-lg font-bold text-white text-lg shadow-lg">
                 GERAR MEU TREINO
               </button>
             </form>
@@ -131,13 +126,18 @@ export default function Formulario() {
 
         {loading && (
           <div className="text-center py-10">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-red-600 border-solid mx-auto mb-6"></div>
-            <h2 className="text-xl font-semibold text-white">
-              Analisando seu perfil...
+            <h2 className="text-xl font-semibold text-white mb-4">
+              {mensagem}
             </h2>
-            <p className="text-gray-400 mt-2">
-              Criando sua estratégia personalizada
-            </p>
+
+            <div className="w-full bg-zinc-800 rounded-full h-4 overflow-hidden">
+              <div
+                className="bg-red-600 h-4 transition-all duration-200"
+                style={{ width: `${progresso}%` }}
+              />
+            </div>
+
+            <p className="text-gray-400 mt-3">{progresso}%</p>
           </div>
         )}
 
@@ -154,6 +154,7 @@ export default function Formulario() {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
