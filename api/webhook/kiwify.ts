@@ -26,7 +26,7 @@ export default async function handler(req: any, res: any) {
   console.log(`[Kiwify] Evento recebido: ${event} | Pedido: ${order_id}`);
 
   // ── 2. Pagamento aprovado ────────────────────────────────────────────────────
-  if (event === "order.paid") {
+  if (event === "purchase.approved") {
     const email = Customer?.email;
     const nome = Customer?.full_name || "Cliente";
 
@@ -63,7 +63,7 @@ export default async function handler(req: any, res: any) {
   }
 
   // ── 3. Reembolso — bloqueia o acesso ────────────────────────────────────────
-  if (event === "order.refunded") {
+  if (event === "purchase.refunded") {
     const email = Customer?.email;
     if (email) {
       await supabaseRevogar(email);
