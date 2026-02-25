@@ -2,10 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { gerarPDF } from "@/lib/gerarPDF";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Guard de acesso — verifica o token antes de renderizar o formulário
-// ─────────────────────────────────────────────────────────────────────────────
-
 type StatusAcesso = "verificando" | "liberado" | "bloqueado";
 
 type MotivosBloqueio = {
@@ -23,15 +19,10 @@ const MENSAGENS_BLOQUEIO: MotivosBloqueio = {
     descricao:
       "Este link já foi usado para gerar um plano. Cada compra gera um link exclusivo de uso único.",
   },
-  token_expirado: {
-    titulo: "Link expirado",
-    descricao:
-      "Este link expirou. Os links são válidos por 7 dias após a compra. Entre em contato para reativação.",
-  },
   token_ausente: {
     titulo: "Acesso não autorizado",
     descricao:
-      "Esta página só pode ser acessada através do link enviado por email após a compra.",
+      "Esta página só pode ser acessada através do link enviado após a compra.",
   },
   erro_servidor: {
     titulo: "Erro temporário",
@@ -43,22 +34,21 @@ const MENSAGENS_BLOQUEIO: MotivosBloqueio = {
 export default function Formulario() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const token = searchParams.get("token");
+  const order_code = searchParams.get("order_code");
 
   const [statusAcesso, setStatusAcesso] = useState<StatusAcesso>("verificando");
   const [motivoBloqueio, setMotivoBloqueio] = useState<string>("token_ausente");
 
   useEffect(() => {
-    // Sem token na URL → redireciona imediatamente
-    if (!token) {
+    if (!order_code) {
       navigate("/", { replace: true });
       return;
     }
 
-    async function verificarToken() {
+    async function verificarAcesso() {
       try {
         const res = await fetch(
-          `/api/validar-token?token=${encodeURIComponent(token!)}`
+          `/api/validar-token?order_code=${encodeURIComponent(order_code!)}`
         );
         const data = await res.json();
 
@@ -74,10 +64,9 @@ export default function Formulario() {
       }
     }
 
-    verificarToken();
-  }, [token, navigate]);
+    verificarAcesso();
+  }, [order_code, navigate]);
 
-  // ── Tela: verificando ───────────────────────────────────────────────────────
   if (statusAcesso === "verificando") {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -86,15 +75,12 @@ export default function Formulario() {
           <p className="text-white font-semibold text-lg mb-1">
             Verificando seu acesso...
           </p>
-          <p className="text-gray-500 text-sm">
-            Aguarde um momento
-          </p>
+          <p className="text-gray-500 text-sm">Aguarde um momento</p>
         </div>
       </div>
     );
   }
 
-  // ── Tela: bloqueado ─────────────────────────────────────────────────────────
   if (statusAcesso === "bloqueado") {
     const msg =
       MENSAGENS_BLOQUEIO[motivoBloqueio] || MENSAGENS_BLOQUEIO.token_invalido;
@@ -116,23 +102,17 @@ export default function Formulario() {
             Ir para a página inicial
           </a>
           <p className="text-gray-600 text-xs mt-5">
-            Problemas com o acesso? Contate o suporte respondendo o email de
-            compra.
+            Problemas com o acesso? Contate o suporte respondendo o email de compra.
           </p>
         </div>
       </div>
     );
   }
 
-  // ── Formulário liberado ──────────────────────────────────────────────────────
-  return <FormularioContent token={token!} />;
+  return <FormularioContent order_code={order_code!} />;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Componente do formulário (só renderiza se o token for válido)
-// ─────────────────────────────────────────────────────────────────────────────
-
-function FormularioContent({ token }: { token: string }) {
+function FormularioContent({ order_code }: { order_code: string }) {
   const [form, setForm] = useState({
     idade: "",
     peso: "",
@@ -202,8 +182,7 @@ function FormularioContent({ token }: { token: string }) {
       const res = await fetch("/api/gerar-treino", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Envia o token junto — o backend vai marcar como usado após gerar
-        body: JSON.stringify({ ...form, token }),
+        body: JSON.stringify({ ...form, order_code }),
       });
 
       const data = await res.json();
@@ -482,8 +461,7 @@ function FormularioContent({ token }: { token: string }) {
               </button>
 
               <p className="text-center text-gray-500 text-xs">
-                ✅ PDF gerado localmente &nbsp;|&nbsp; 🔒 Seus dados são
-                privados
+                ✅ PDF gerado localmente &nbsp;|&nbsp; 🔒 Seus dados são privados
               </p>
             </div>
           </div>

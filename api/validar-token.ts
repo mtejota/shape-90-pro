@@ -1,21 +1,19 @@
 export default async function handler(req: any, res: any) {
-  // Aceita GET (chamado pelo frontend via query string)
-  const token =
-    req.method === "GET" ? req.query?.token : req.body?.token;
+  const order_code =
+    req.method === "GET" ? req.query?.order_code : req.body?.order_code;
 
-  if (!token || typeof token !== "string") {
+  if (!order_code || typeof order_code !== "string") {
     return res.status(400).json({ valido: false, motivo: "token_ausente" });
   }
 
   const url = process.env.SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_KEY!;
 
-  // ── Busca o token no banco ───────────────────────────────────────────────────
   let registro: any = null;
 
   try {
     const response = await fetch(
-      `${url}/rest/v1/acessos?token=eq.${encodeURIComponent(token)}&select=*&limit=1`,
+      `${url}/rest/v1/acessos?order_ref=eq.${encodeURIComponent(order_code)}&select=*&limit=1`,
       {
         headers: {
           apikey: key,
@@ -36,7 +34,6 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ valido: false, motivo: "erro_servidor" });
   }
 
-  // ── Checagens de segurança ───────────────────────────────────────────────────
   if (!registro) {
     return res.status(200).json({ valido: false, motivo: "token_invalido" });
   }
@@ -45,10 +42,6 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({ valido: false, motivo: "token_ja_usado" });
   }
 
-  if (new Date(registro.expira_em) < new Date()) {
-    return res.status(200).json({ valido: false, motivo: "token_expirado" });
-  }
-
-  // ── Token válido ─────────────────────────────────────────────────────────────
+  // ── Válido ───────────────────────────────────────────────────────────────────
   return res.status(200).json({ valido: true, email: registro.email });
 }

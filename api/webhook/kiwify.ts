@@ -28,7 +28,8 @@ export default async function handler(req: any, res: any) {
   const event = order?.webhook_event_type;
   const Customer = order?.Customer;
   const order_id = order?.order_id;
-  console.log(`[Kiwify] Evento recebido: ${event} | Pedido: ${order_id}`);
+  const order_ref = order?.order_ref; // ex: "xAXYLFp" — é o order_code que vem na URL
+  console.log(`[Kiwify] Evento recebido: ${event} | Pedido: ${order_id} | Ref: ${order_ref}`);
 
   // ── 2. Pagamento aprovado ────────────────────────────────────────────────────
   if (event === "order_approved") {
@@ -39,25 +40,26 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: "Email não encontrado no payload" });
     }
 
-    // Gera um token único e seguro (64 caracteres hex)
-    const token = crypto.randomBytes(32).toString("hex");
-    const expiraEm = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7 dias
+    if (!order_ref) {
+      return res.status(400).json({ error: "order_ref não encontrado no payload" });
+    }
 
     // ── Salva no Supabase ──────────────────────────────────────────────────────
     const salvo = await supabaseInsert({
       email,
-      token,
+      nome,
       order_id,
+      order_ref,   // esse é o valor que vai aparecer como ?order_code= na URL
       usado: false,
-      expira_em: expiraEm.toISOString(),
+      criado_em: new Date().toISOString(),
     });
 
     if (!salvo) {
-      console.error("[Supabase] Falha ao salvar token");
+      console.error("[Supabase] Falha ao salvar acesso");
       return res.status(500).json({ error: "Erro ao registrar acesso" });
     }
 
-    console.log(`[OK] Token criado para ${email}`);
+    console.log(`[OK] Acesso registrado para ${email} com order_ref=${order_ref}`);
     return res.status(200).json({ ok: true });
   }
 
