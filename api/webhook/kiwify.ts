@@ -24,11 +24,12 @@ export default async function handler(req: any, res: any) {
     }
   }
 
-  const { order } = req.body;
+  // A Kiwify às vezes envia os dados direto na raiz, às vezes dentro de "order"
+  const order = req.body?.order ?? req.body;
   const event = order?.webhook_event_type;
   const Customer = order?.Customer;
   const order_id = order?.order_id;
-  const order_ref = order?.order_ref; // ex: "xAXYLFp" — é o order_code que vem na URL
+  const order_ref = order?.order_ref;
   console.log(`[Kiwify] Evento recebido: ${event} | Pedido: ${order_id} | Ref: ${order_ref}`);
 
   // ── 2. Pagamento aprovado ────────────────────────────────────────────────────
