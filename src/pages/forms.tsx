@@ -120,6 +120,8 @@ function FormularioContent({ order_code }: { order_code: string }) {
     dias: "",
     objetivo: "",
     nivel: "",
+    local: "",
+    limitacoes: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -387,7 +389,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 <option value="">Objetivo</option>
                 <option value="hipertrofia">Hipertrofia</option>
                 <option value="definicao">Definição</option>
-                <option value="recomposicao">Emagrecimento</option>
+                <option value="emagrecimento">Emagrecimento</option>
               </select>
 
               <select
@@ -401,6 +403,25 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 <option value="intermediario">Intermediário</option>
                 <option value="avancado">Avançado</option>
               </select>
+
+              <select
+                name="local"
+                required
+                onChange={handleChange}
+                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
+              >
+                <option value="">Onde vai treinar?</option>
+                <option value="academia">Academia</option>
+                <option value="casa">Em casa (halteres / elásticos)</option>
+                <option value="sem_equipamento">Sem equipamento (peso corporal)</option>
+              </select>
+
+              <input
+                name="limitacoes"
+                placeholder="Lesões ou limitações físicas (opcional)"
+                onChange={handleChange}
+                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
+              />
 
               <button
                 type="submit"
