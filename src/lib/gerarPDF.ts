@@ -467,41 +467,48 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
       continue;
     }
 
-    // ── Linha bold isolada ─────────────────────────────────────────────────
-    // ALTERADO: exercício → caixa destacada | séries/reps/descanso/execução → parágrafo
+    // ── Linha bold isolada — exercício ou subtítulo ────────────────────────
     if (/^\*\*[^*]+\*\*[:.]?\s*$/.test(linha)) {
       const nome = stripMd(linha).replace(/:$/, "");
-      let j = i + 1;
-      let temProps = false;
 
-      // Lookahead: verifica se as próximas linhas são séries/reps/etc
+      // Formato novo: **Nome** seguido de --- (separador)
+      // Encontra a próxima linha não-vazia para checar se é ---
+      let nextIdx = i + 1;
+      while (nextIdx < linhas.length && !linhas[nextIdx].trim()) nextIdx++;
+      const nextLinha = linhas[nextIdx]?.trim() ?? "";
+
+      if (/^---+$/.test(nextLinha)) {
+        // É um exercício no formato novo → caixa destacada, pula o ---
+        renderDestaqueExercicio(nome);
+        i = nextIdx; // o loop fará i++ e pulará o ---
+        continue;
+      }
+
+      // Formato legado: **Nome** seguido de bullets - Séries: / Repetições: / etc
+      let j = i + 1;
+      let temBulletProps = false;
       while (j < linhas.length) {
         const sub = linhas[j].trim();
         if (/^[-•]\s+(S[eé]ries|Repeti[cç]|Descanso|Tempo|Execu[cç][aã]o):/i.test(sub)) {
-          temProps = true;
+          temBulletProps = true;
           j++;
         } else {
           break;
         }
       }
 
-      if (temProps) {
-        // Nome do exercício → caixa com borda vermelha
+      if (temBulletProps) {
         renderDestaqueExercicio(nome);
-
-        // Séries, reps, descanso, execução → parágrafo simples
         let k = i + 1;
         while (k < linhas.length) {
           const sub = linhas[k].trim();
           if (/^[-•]\s+(S[eé]ries|Repeti[cç]|Descanso|Tempo|Execu[cç][aã]o):/i.test(sub)) {
-            const txt = sub.replace(/^[-•]\s+/, "");
-            renderParagrafo(stripMd(txt));
+            renderParagrafo(stripMd(sub.replace(/^[-•]\s+/, "")));
             k++;
           } else {
             break;
           }
         }
-        // Pequeno espaço após bloco de exercício
         y += 3;
         i = k - 1;
       } else {

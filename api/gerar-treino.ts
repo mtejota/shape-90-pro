@@ -133,12 +133,13 @@ Monte a divisão ideal para ${dias} dias por semana, considerando o objetivo (${
 Para cada sessão de treino, informe:
 - Nome do treino e grupamentos musculares trabalhados
 - Aquecimento específico (5 a 10 minutos)
-- Lista de exercícios com:
-  **Nome do Exercício**
-  - Séries: X
-  - Repetições: X a X
-  - Descanso: X segundos
-  - Execução: instrução técnica breve para o aluno executar com segurança
+- Lista de exercícios usando EXATAMENTE este formato para cada um:
+
+**1. Nome do Exercício**
+---
+Séries: X | Repetições: X-X | Descanso: X segundos
+Execução: instrução técnica de execução segura em 1-2 frases diretas.
+
 - Volta à calma / alongamento final
 
 ## Progressão de Carga e Controle de Volume
