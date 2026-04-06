@@ -6,7 +6,7 @@ import jsPDF from "jspdf";
 const safe = (texto: string): string =>
   texto
     .replace(/[–—]/g, "-")
-    .replace(/[^\u0000-\u00FF]/g, "")
+    .replace(/[\u0100-\uFFFF]/g, "")
     .replace(/\*{1,2}/g, "")
     .replace(/#{1,6}\s*/g, "")
     .trim();
@@ -18,7 +18,7 @@ const stripMd = (linha: string): string =>
     .replace(/`([^`]+)`/g, "$1")
     .replace(/^\s*#{1,6}\s+/, "")
     .replace(/[–—]/g, "-")
-    .replace(/[^\u0000-\u00FF]/g, "")
+    .replace(/[\u0100-\uFFFF]/g, "")
     .trim();
 
 const nivelTitulo = (linha: string): number => {
@@ -148,9 +148,9 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
   pdf.setLineWidth(0.7);
   pdf.line(mX + 20, 83, pw - mX - 20, 83);
 
-  // Card dados do aluno — altura dinâmica (com linha de local)
+  // Card dados do aluno
   const cardY   = 88;
-  const cardH   = 109; // +17mm vs original para comportar a linha de local
+  const cardH   = 109;
   fill(C.cinzaCard);
   pdf.roundedRect(mX, cardY, cW, cardH, 3, 3, "F");
   stroke(C.vermelho);
@@ -169,7 +169,6 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
   pdf.setLineWidth(0.3);
   pdf.line(mX + 6, cardY + 13, pw - mX - 6, cardY + 13);
 
-  // 6 badges 3x2
   const metricas = [
     { label: "IDADE",       valor: `${dadosAluno.idade} anos` },
     { label: "OBJETIVO",    valor: objLabel },
@@ -196,7 +195,6 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
     pdf.text(safe(m.valor), bx + badgeW / 2, by + 12, { align: "center" });
   });
 
-  // Badge LOCAL DE TREINO — full width
   const localBadgeY = cardY + 17 + 2 * 19;
   fill(C.cinzaBadge);
   pdf.roundedRect(mX + 3, localBadgeY, cW - 6, 15, 2, 2, "F");
@@ -212,7 +210,6 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
   color(C.branco);
   pdf.text(safe(locLabel), mX + 12, localBadgeY + 12);
 
-  // Badge IMC com cor indicativa
   const imcY = localBadgeY + 17;
   fill(C.cinzaBadge);
   pdf.roundedRect(mX + 3, imcY, cW - 6, 15, 2, 2, "F");
@@ -232,14 +229,12 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
   color(C.branco);
   pdf.text(`${imcVal}  -  ${imcCls}`, mX + 12, imcY + 12);
 
-  // Data (+17 em relação ao original)
   pdf.setFont("helvetica", "italic");
   pdf.setFontSize(7.5);
   color(C.cinzaMedio);
   const dataHoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
   pdf.text(safe(`Gerado em ${dataHoje}`), pw / 2, 209, { align: "center" });
 
-  // Frase motivacional
   fill(C.vermelhoEsc);
   pdf.rect(mX, 214, cW, 20, "F");
   stroke(C.vermelho);
@@ -250,7 +245,6 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
   color(C.branco);
   pdf.text('"90 DIAS PODEM MUDAR O SEU CORPO PARA SEMPRE."', pw / 2, 226, { align: "center" });
 
-  // Badges de benefícios
   const bens = [
     { icone: "+", txt: "Treino personalizado" },
     { icone: "+", txt: "Progressao cientifica" },
@@ -276,10 +270,10 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
     pdf.text(wrapped, bx + benW / 2, 254, { align: "center" });
   });
 
-  rodape(1, 1); // Sobrescrito no loop final
+  rodape(1, 1);
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // CONTEÚDO DA IA — começa direto na página 2
+  // CONTEÚDO DA IA
   // ─────────────────────────────────────────────────────────────────────────────
   novaPag();
 
@@ -299,7 +293,6 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
     y += 18;
   };
 
-  // Cabeçalho de dia de treino — visual diferenciado
   const renderDiaTreino = (titulo: string) => {
     chk(16);
     y += 4;
@@ -358,7 +351,10 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
     y += wrapped.length * 5.5 + 5;
   };
 
-  const renderDestaque = (msg: string) => {
+  // ─── NOVO: renderDestaqueExercicio
+  // Nome do exercício em caixa com borda vermelha (igual ao renderDestaque original)
+  // Séries/reps/descanso/execução viram parágrafo simples via renderParagrafo
+  const renderDestaqueExercicio = (msg: string) => {
     const limpo = safe(msg);
     if (!limpo) return;
     const wrapped = pdf.splitTextToSize(limpo, cW - 18);
@@ -372,103 +368,13 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
     fill(C.vermelho);
     pdf.roundedRect(mX, y, 4, h, 2, 2, "F");
     pdf.rect(mX + 2, y, 2, h, "F");
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(9);
-    color(C.cinzaClaro);
-    pdf.text(wrapped, mX + 9, y + 7);
-    y += h + 5;
-  };
-
-  // Card unificado de exercício
-  const renderExercicio = (
-    nome: string,
-    props: { label: string; valor: string }[],
-    execucao: string
-  ) => {
-    // Máximo 3 colunas — badges mais largos e legíveis
-    const COLS      = Math.min(props.length, 3);
-    const nRows     = props.length > 0 ? Math.ceil(props.length / COLS) : 0;
-    const BADGE_H   = 20; // altura generosa: label + divisor + valor
-    const execLines = execucao
-      ? pdf.splitTextToSize(safe(execucao), cW - 16)
-      : [];
-    const execSecH  = execLines.length > 0 ? execLines.length * 5.5 + 14 : 0;
-    const h         = 14 + nRows * (BADGE_H + 3) + execSecH + 5;
-
-    chk(h + 4);
-
-    // Fundo do card
-    fill(C.cinzaCard);
-    pdf.roundedRect(mX, y, cW, h, 2, 2, "F");
-    stroke(C.vermelhoEsc);
-    pdf.setLineWidth(0.4);
-    pdf.roundedRect(mX, y, cW, h, 2, 2, "S");
-
-    // Header — nome do exercício
-    fill(C.vermelhoEsc);
-    pdf.roundedRect(mX, y, cW, 13, 2, 2, "F");
-    pdf.rect(mX, y + 7, cW, 6, "F");
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(9.5);
     color(C.branco);
-    pdf.text(safe(nome).toUpperCase(), mX + 7, y + 9.5);
-
-    // Badges: label em cima, divisor, valor em baixo
-    const badgeW2 = (cW - 8) / COLS;
-    props.forEach((p, i) => {
-      const col = i % COLS;
-      const row = Math.floor(i / COLS);
-      const bx  = mX + 4 + col * badgeW2;
-      const by  = y + 17 + row * (BADGE_H + 3);
-      const bw  = badgeW2 - 3;
-
-      fill(C.cinzaBadge);
-      pdf.roundedRect(bx, by, bw, BADGE_H, 1, 1, "F");
-
-      // Label
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(7);
-      color(C.cinzaMedio);
-      pdf.text(safe(p.label).toUpperCase(), bx + bw / 2, by + 6, { align: "center" });
-
-      // Divisor interno
-      stroke(C.cinzaEscuro);
-      pdf.setLineWidth(0.2);
-      pdf.line(bx + 5, by + 9, bx + bw - 5, by + 9);
-
-      // Valor — destaque
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(11);
-      color(C.branco);
-      pdf.text(safe(p.valor), bx + bw / 2, by + 17, { align: "center" });
-    });
-
-    // Seção de execução — separada visualmente
-    if (execLines.length > 0) {
-      const exY = y + 17 + nRows * (BADGE_H + 3) + 2;
-
-      // Fundo levemente diferente para destacar a instrução
-      fill([18, 18, 18] as [number, number, number]);
-      pdf.rect(mX + 1, exY, cW - 2, execSecH - 2, "F");
-      stroke(C.vermelho);
-      pdf.setLineWidth(0.25);
-      pdf.line(mX + 1, exY, mX + 1 + cW - 2, exY);
-
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(7.5);
-      color(C.vermelho);
-      pdf.text("EXECUCAO:", mX + 6, exY + 6);
-
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(8.5);
-      color(C.cinzaClaro);
-      pdf.text(execLines, mX + 6, exY + 12);
-    }
-
-    y += h + 6;
+    pdf.text(wrapped, mX + 9, y + 7);
+    y += h + 4;
   };
 
-  // Tabela markdown
   const renderTabela = (rows: string[][]) => {
     if (rows.length === 0) return;
     const maxCols  = Math.max(...rows.map(r => r.length));
@@ -499,7 +405,7 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
     y += 5;
   };
 
-  // ─── PARSER PRINCIPAL — for loop com lookahead ─────────────────────────────
+  // ─── PARSER PRINCIPAL ──────────────────────────────────────────────────────
   const linhas    = resultado.split("\n");
   let tabelaRows: string[][] = [];
 
@@ -513,14 +419,12 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
   for (let i = 0; i < linhas.length; i++) {
     const linha = linhas[i].trim();
 
-    // Linha vazia
     if (!linha) {
       flushTabela();
       y += 3;
       continue;
     }
 
-    // Separador
     if (/^---+$/.test(linha)) {
       flushTabela();
       chk(8);
@@ -531,9 +435,8 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
       continue;
     }
 
-    // Tabela markdown
     if (linha.startsWith("|")) {
-      if (/^\|[-:\s|]+\|$/.test(linha)) continue; // separador |---|
+      if (/^\|[-:\s|]+\|$/.test(linha)) continue;
       const cols = linha.split("|").map(c => stripMd(c.trim())).filter(Boolean);
       if (cols.length > 0) tabelaRows.push(cols);
       continue;
@@ -541,7 +444,6 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
       flushTabela();
     }
 
-    // Títulos markdown
     const nivel = nivelTitulo(linha);
     if (nivel >= 1) {
       const titulo = stripMd(linha);
@@ -549,7 +451,6 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
       if (nivel === 1 || nivel === 2) {
         renderSecao(titulo);
       } else {
-        // Nível 3-4: detecta cabeçalho de dia de treino
         const tUpper = titulo.toUpperCase();
         const isDiaTreino = /^(TREINO\s+[A-G]|DIA\s+\d|TREINO DE\s|SESS[AÃ]O\s+[A-G\d])/.test(tUpper);
         if (isDiaTreino) {
@@ -561,40 +462,48 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
       continue;
     }
 
-    // Seção numerada: "1. TÍTULO EM MAIÚSCULAS"
     if (/^\d+\.\s+[A-Z\u00C0-\u00DD]/.test(linha)) {
       renderSecao(stripMd(linha));
       continue;
     }
 
-    // Linha bold isolada — pode ser nome de exercício (com lookahead) ou subtítulo
+    // ── Linha bold isolada ─────────────────────────────────────────────────
+    // ALTERADO: exercício → caixa destacada | séries/reps/descanso/execução → parágrafo
     if (/^\*\*[^*]+\*\*[:.]?\s*$/.test(linha)) {
       const nome = stripMd(linha).replace(/:$/, "");
-      const props: { label: string; valor: string }[] = [];
-      let execucao = "";
       let j = i + 1;
+      let temProps = false;
 
+      // Lookahead: verifica se as próximas linhas são séries/reps/etc
       while (j < linhas.length) {
         const sub = linhas[j].trim();
         if (/^[-•]\s+(S[eé]ries|Repeti[cç]|Descanso|Tempo|Execu[cç][aã]o):/i.test(sub)) {
-          const txt        = sub.replace(/^[-•]\s+/, "");
-          const colonIdx   = txt.indexOf(":");
-          const label      = txt.substring(0, colonIdx).trim();
-          const valor      = txt.substring(colonIdx + 1).trim();
-          if (/execu/i.test(label)) {
-            execucao = valor;
-          } else {
-            props.push({ label, valor });
-          }
+          temProps = true;
           j++;
         } else {
           break;
         }
       }
 
-      if (props.length > 0) {
-        renderExercicio(nome, props, execucao);
-        i = j - 1;
+      if (temProps) {
+        // Nome do exercício → caixa com borda vermelha
+        renderDestaqueExercicio(nome);
+
+        // Séries, reps, descanso, execução → parágrafo simples
+        let k = i + 1;
+        while (k < linhas.length) {
+          const sub = linhas[k].trim();
+          if (/^[-•]\s+(S[eé]ries|Repeti[cç]|Descanso|Tempo|Execu[cç][aã]o):/i.test(sub)) {
+            const txt = sub.replace(/^[-•]\s+/, "");
+            renderParagrafo(stripMd(txt));
+            k++;
+          } else {
+            break;
+          }
+        }
+        // Pequeno espaço após bloco de exercício
+        y += 3;
+        i = k - 1;
       } else {
         renderSubsecao(nome);
       }
@@ -604,8 +513,9 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
     // Bullet
     if (/^[-•*]\s+/.test(linha)) {
       const txt = linha.replace(/^[-•*]\s+/, "");
+      // ALTERADO: séries/reps/descanso/execução isolados → parágrafo (não mais caixa)
       if (/^(S[eé]ries|Repeti[cç]|Descanso|Tempo|Execu[cç][aã]o):/i.test(txt)) {
-        renderDestaque(stripMd(txt));
+        renderParagrafo(stripMd(txt));
       } else {
         renderBullet(stripMd(txt));
       }
@@ -684,7 +594,7 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
   // ─────────────────────────────────────────────────────────────────────────────
   // RODAPÉS
   // ─────────────────────────────────────────────────────────────────────────────
-  const totalPages = (pdf.internal as any).getNumberOfPages();
+  const totalPages = pdf.getNumberOfPages();
   for (let p = 1; p <= totalPages; p++) {
     pdf.setPage(p);
     rodape(p, totalPages);
