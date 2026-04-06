@@ -385,15 +385,15 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
     props: { label: string; valor: string }[],
     execucao: string
   ) => {
+    // Máximo 3 colunas — badges mais largos e legíveis
+    const COLS      = Math.min(props.length, 3);
+    const nRows     = props.length > 0 ? Math.ceil(props.length / COLS) : 0;
+    const BADGE_H   = 20; // altura generosa: label + divisor + valor
     const execLines = execucao
-      ? pdf.splitTextToSize(safe(execucao), cW - 22)
+      ? pdf.splitTextToSize(safe(execucao), cW - 16)
       : [];
-    const nBadgeRows = props.length > 0 ? Math.ceil(props.length / 4) : 0;
-    const h =
-      14 +                                            // header
-      nBadgeRows * 14 +                               // badges
-      (execLines.length > 0 ? execLines.length * 5.5 + 12 : 0) + // execução
-      5;                                              // bottom padding
+    const execSecH  = execLines.length > 0 ? execLines.length * 5.5 + 14 : 0;
+    const h         = 14 + nRows * (BADGE_H + 3) + execSecH + 5;
 
     chk(h + 4);
 
@@ -404,51 +404,68 @@ export async function gerarPDF(resultado: string, dadosAluno: Record<string, str
     pdf.setLineWidth(0.4);
     pdf.roundedRect(mX, y, cW, h, 2, 2, "S");
 
-    // Header vermelho
+    // Header — nome do exercício
     fill(C.vermelhoEsc);
-    pdf.roundedRect(mX, y, cW, 12, 2, 2, "F");
-    pdf.rect(mX, y + 6, cW, 6, "F");
+    pdf.roundedRect(mX, y, cW, 13, 2, 2, "F");
+    pdf.rect(mX, y + 7, cW, 6, "F");
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(9);
+    pdf.setFontSize(9.5);
     color(C.branco);
-    pdf.text(safe(nome).toUpperCase(), mX + 7, y + 8.5);
+    pdf.text(safe(nome).toUpperCase(), mX + 7, y + 9.5);
 
-    // Badges de propriedades
-    const badgeW2 = props.length > 0 ? (cW - 8) / Math.min(props.length, 4) : 0;
+    // Badges: label em cima, divisor, valor em baixo
+    const badgeW2 = (cW - 8) / COLS;
     props.forEach((p, i) => {
-      const col  = i % 4;
-      const row  = Math.floor(i / 4);
-      const bx   = mX + 4 + col * badgeW2;
-      const by   = y + 15 + row * 14;
-      fill(C.cinzaBadge);
-      pdf.roundedRect(bx, by, badgeW2 - 2, 11, 1, 1, "F");
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(6);
-      color(C.cinzaMedio);
-      pdf.text(safe(p.label).toUpperCase(), bx + (badgeW2 - 2) / 2, by + 4, { align: "center" });
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(8.5);
-      color(C.vermelho);
-      pdf.text(safe(p.valor), bx + (badgeW2 - 2) / 2, by + 9.5, { align: "center" });
-    });
+      const col = i % COLS;
+      const row = Math.floor(i / COLS);
+      const bx  = mX + 4 + col * badgeW2;
+      const by  = y + 17 + row * (BADGE_H + 3);
+      const bw  = badgeW2 - 3;
 
-    // Linha de execução
-    if (execLines.length > 0) {
-      const execStartY = y + 15 + nBadgeRows * 14 + 2;
+      fill(C.cinzaBadge);
+      pdf.roundedRect(bx, by, bw, BADGE_H, 1, 1, "F");
+
+      // Label
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(7);
+      color(C.cinzaMedio);
+      pdf.text(safe(p.label).toUpperCase(), bx + bw / 2, by + 6, { align: "center" });
+
+      // Divisor interno
       stroke(C.cinzaEscuro);
       pdf.setLineWidth(0.2);
-      pdf.line(mX + 4, execStartY, pw - mX - 4, execStartY);
+      pdf.line(bx + 5, by + 9, bx + bw - 5, by + 9);
+
+      // Valor — destaque
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(11);
+      color(C.branco);
+      pdf.text(safe(p.valor), bx + bw / 2, by + 17, { align: "center" });
+    });
+
+    // Seção de execução — separada visualmente
+    if (execLines.length > 0) {
+      const exY = y + 17 + nRows * (BADGE_H + 3) + 2;
+
+      // Fundo levemente diferente para destacar a instrução
+      fill([18, 18, 18] as [number, number, number]);
+      pdf.rect(mX + 1, exY, cW - 2, execSecH - 2, "F");
+      stroke(C.vermelho);
+      pdf.setLineWidth(0.25);
+      pdf.line(mX + 1, exY, mX + 1 + cW - 2, exY);
+
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(7.5);
-      color(C.cinzaMedio);
-      pdf.text("EXECUCAO:", mX + 7, execStartY + 5);
+      color(C.vermelho);
+      pdf.text("EXECUCAO:", mX + 6, exY + 6);
+
       pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(8);
+      pdf.setFontSize(8.5);
       color(C.cinzaClaro);
-      pdf.text(execLines, mX + 7, execStartY + 10);
+      pdf.text(execLines, mX + 6, exY + 12);
     }
 
-    y += h + 5;
+    y += h + 6;
   };
 
   // Tabela markdown
