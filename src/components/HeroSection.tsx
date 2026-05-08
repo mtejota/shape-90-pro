@@ -38,8 +38,8 @@ const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.7 }}
           >
-            Magro e cansado de{" "}
-            <span className="text-gradient-red">não ganhar massa?</span>
+            Cansado de treinar{" "}
+            <span className="text-gradient-red">e continua sem resultados?</span>
           </motion.h1>
           <motion.p
             className="text-lg md:text-xl text-muted-foreground max-w-lg"
