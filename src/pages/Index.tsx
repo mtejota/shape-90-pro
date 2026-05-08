@@ -14,6 +14,7 @@ import { ScrollProgress } from "@/components/AnimatedSection";
 const Index = () => {
   return (
     <main className="overflow-hidden">
+      <ScrollProgress />
       <HeroSection />
       <PainSection />
       <SolutionSection />
