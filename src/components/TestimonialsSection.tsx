@@ -19,7 +19,7 @@ const testimonials = [
   {
     image: t1,
     name: "Rafael C.",
-    age: "24 anos",
+    age: "34 anos",
     period: "90 dias",
     quote:
       "Achei que nunca ia conseguir. Segui o plano à risca e o resultado falou por si. Mudou minha cabeça.",
@@ -27,7 +27,7 @@ const testimonials = [
   {
     image: t2,
     name: "Camila S.",
-    age: "23 anos",
+    age: "27 anos",
     period: "90 dias",
     quote:
       "Treinava sem direção e não via resultado. Com o método ficou claro o que fazer todo dia.",
@@ -98,15 +98,11 @@ const TestimonialsSection = () => {
           ))}
         </div>
 
-        <AnimatedSection delay={0.3} className="text-center mt-14">
-          <p className="text-muted-foreground mb-6 text-lg">
-            O próximo antes e depois pode ser o <span className="text-primary font-bold">seu</span>.
+        <AnimatedSection delay={0.3} className="text-center mt-14 ">
+          <p className="text-muted-foreground mb-6 text-xl">
+            O próximo antes e depois pode ser o <span className="text-primary font-bold text-xl ">seu</span>.
           </p>
-          <a href="#oferta">
-            <Button variant="cta" size="xl">
-              QUERO MINHA TRANSFORMAÇÃO
-            </Button>
-          </a>
+          
         </AnimatedSection>
       </div>
     </section>
