@@ -13,7 +13,7 @@ const PainSection = () => {
   return (
     <section className="py-20 md:py-28 bg-secondary/50">
       <div className="container">
-        <AnimatedSection>
+        <AnimatedSection variant="blur">
           <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase text-center mb-12">
             Se você se identifica com isso,{" "}
             <span className="text-gradient-red">essa página é pra você:</span>
@@ -21,8 +21,8 @@ const PainSection = () => {
         </AnimatedSection>
         <div className="max-w-2xl mx-auto space-y-5">
           {pains.map((pain, i) => (
-            <StaggerItem key={i} delay={i * 0.12}>
-              <div className="flex items-center gap-4 bg-card rounded-lg p-5 border border-border hover:border-primary/40 transition-colors duration-300">
+            <StaggerItem key={i} delay={i * 0.12} variant={i % 2 === 0 ? "left" : "right"}>
+              <div className="flex items-center gap-4 bg-card rounded-lg p-5 border border-border hover:border-primary/40 hover:translate-x-1 transition-all duration-300">
                 <XCircle className="w-6 h-6 text-primary shrink-0" />
                 <span className="text-lg font-medium">{pain}</span>
               </div>
