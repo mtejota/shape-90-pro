@@ -29,7 +29,7 @@ const FaqSection = () => {
   return (
     <section className="py-20 md:py-28">
       <div className="container">
-        <AnimatedSection>
+        <AnimatedSection variant="blur">
           <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase text-center mb-12">
             Perguntas <span className="text-gradient-red">frequentes</span>
           </h2>

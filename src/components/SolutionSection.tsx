@@ -14,7 +14,7 @@ const SolutionSection = () => {
   return (
     <section className="py-20 md:py-28">
       <div className="container">
-        <AnimatedSection>
+        <AnimatedSection variant="zoom">
           <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase text-center mb-6">
             O Projeto Shape 90D foi criado para{" "}
             <span className="text-gradient-red">resolver exatamente isso.</span>

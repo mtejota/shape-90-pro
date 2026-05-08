@@ -10,14 +10,14 @@ const HowItWorksSection = () => {
   return (
     <section className="py-20 md:py-28 bg-secondary/50">
       <div className="container">
-        <AnimatedSection>
+        <AnimatedSection variant="down">
           <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase text-center mb-14">
             Como <span className="text-gradient-red">funciona</span>
           </h2>
         </AnimatedSection>
         <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           {steps.map((s, i) => (
-            <AnimatedSection key={s.num} delay={i * 0.2}>
+            <AnimatedSection key={s.num} delay={i * 0.2} variant="zoom">
               <div className="text-center space-y-4 group">
                 <span className="inline-block font-heading text-5xl font-bold text-primary group-hover:scale-110 transition-transform duration-300">
                   {s.num}

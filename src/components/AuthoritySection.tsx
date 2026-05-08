@@ -13,7 +13,7 @@ const AuthoritySection = () => {
       <div className="container">
         <div className="max-w-3xl mx-auto space-y-8">
           {quotes.map((q, i) => (
-            <AnimatedSection key={i} delay={i * 0.15}>
+            <AnimatedSection key={i} delay={i * 0.15} variant={i % 2 === 0 ? "left" : "right"}>
               <div className="flex gap-4 items-start p-6 rounded-lg border border-primary/20 bg-primary/5 hover:border-primary/40 transition-colors duration-300">
                 <Quote className="w-8 h-8 text-primary shrink-0 mt-1" />
                 <p className="font-heading text-xl md:text-2xl font-semibold uppercase leading-tight">
