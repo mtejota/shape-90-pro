@@ -1,5 +1,4 @@
 import { Star, Quote } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import AnimatedSection from "@/components/AnimatedSection";
 import { motion } from "framer-motion";
 import t1 from "@/assets/transformacao-1.jpg";
@@ -51,8 +50,8 @@ const TestimonialsSection = () => {
             Resultados Reais
           </span>
           <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase mb-4">
-            Transformações de quem{" "}
-            <span className="text-gradient-red">parou de enrolar</span>
+            Transformações de quem
+            <span className="block mt-2 text-gradient-red">parou de enrolar</span>
           </h2>
           <p className="text-muted-foreground text-lg">
             Pessoas comuns que aplicaram o método Shape 90D e viraram o jogo em apenas 3 meses.
@@ -98,11 +97,11 @@ const TestimonialsSection = () => {
           ))}
         </div>
 
-        <AnimatedSection delay={0.3} className="text-center mt-14 ">
-          <p className="text-muted-foreground mb-6 text-xl">
-            O próximo antes e depois pode ser o <span className="text-primary font-bold text-xl ">seu</span>.
+        <AnimatedSection delay={0.3} className="text-center mt-14">
+          <p className="mb-6 text-2xl md:text-3xl font-semibold text-foreground">
+            O próximo antes e depois pode ser o{" "}
+            <span className="text-primary font-extrabold text-3xl md:text-4xl">seu.</span>
           </p>
-          
         </AnimatedSection>
       </div>
     </section>
