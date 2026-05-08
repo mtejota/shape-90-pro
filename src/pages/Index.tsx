@@ -9,6 +9,7 @@ import FaqSection from "@/components/FaqSection";
 import FooterSection from "@/components/FooterSection";
 import SocialProofToast from "@/components/SocialProofToast";
 import FloatingCTA from "@/components/FloatingCTA";
+import { ScrollProgress } from "@/components/AnimatedSection";
 
 const Index = () => {
   return (
