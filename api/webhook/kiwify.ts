@@ -128,6 +128,14 @@ async function supabaseInsert(data: {
       usado: false,
       criado_em: now.toISOString(),
     },
+    // Schema novo sem coluna "nome"
+    {
+      email: data.email,
+      order_id: data.order_id,
+      order_ref: data.accessCode,
+      usado: false,
+      criado_em: now.toISOString(),
+    },
     // Schema legado (token + expira_em obrigatório)
     {
       email: data.email,

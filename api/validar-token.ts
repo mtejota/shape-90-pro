@@ -36,7 +36,10 @@ export default async function handler(req: any, res: any) {
       );
 
       if (!response.ok) {
-        console.error(`[Supabase] Erro na consulta por ${campo}:`, await response.text());
+        const body = await response.text();
+        if (!body.includes('"code":"42703"')) {
+          console.error(`[Supabase] Erro na consulta por ${campo}:`, body);
+        }
         continue;
       }
 
