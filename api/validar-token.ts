@@ -21,27 +21,38 @@ export default async function handler(req: any, res: any) {
   }
 
   let registro: any = null;
+  let consultaOk = false;
 
   try {
-    const response = await fetch(
-      `${url}/rest/v1/acessos?order_ref=eq.${encodeURIComponent(order_code)}&select=*&order=criado_em.desc&limit=1`,
-      {
-        headers: {
-          apikey: key,
-          Authorization: `Bearer ${key}`,
-        },
+    for (const campo of ["order_ref", "token"]) {
+      const response = await fetch(
+        `${url}/rest/v1/acessos?${campo}=eq.${encodeURIComponent(order_code)}&select=*&order=criado_em.desc&limit=1`,
+        {
+          headers: {
+            apikey: key,
+            Authorization: `Bearer ${key}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        console.error(`[Supabase] Erro na consulta por ${campo}:`, await response.text());
+        continue;
       }
-    );
 
-    if (!response.ok) {
-      console.error("[Supabase] Erro na consulta:", await response.text());
-      return res.status(500).json({ valido: false, motivo: "erro_servidor" });
+      consultaOk = true;
+      const lista = await response.json();
+      if (Array.isArray(lista) && lista[0]) {
+        registro = lista[0];
+        break;
+      }
     }
-
-    const lista = await response.json();
-    registro = lista?.[0] ?? null;
   } catch (err) {
     console.error("[validar-token] Erro:", err);
+    return res.status(500).json({ valido: false, motivo: "erro_servidor" });
+  }
+
+  if (!consultaOk) {
     return res.status(500).json({ valido: false, motivo: "erro_servidor" });
   }
 

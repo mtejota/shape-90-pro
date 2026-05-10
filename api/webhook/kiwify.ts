@@ -61,9 +61,7 @@ export default async function handler(req: any, res: any) {
       email,
       nome,
       order_id,
-      order_ref: accessCode, // esse é o valor usado como ?order_code= na URL
-      usado: false,
-      criado_em: new Date().toISOString(),
+      accessCode,
     });
 
     if (!salvo) {
@@ -109,26 +107,56 @@ function isRefundEvent(value: unknown): boolean {
 // Helpers — Supabase REST
 // ─────────────────────────────────────────────────────────────────────────────
 
-async function supabaseInsert(data: object): Promise<boolean> {
+async function supabaseInsert(data: {
+  email: string;
+  nome: string;
+  order_id?: string;
+  accessCode: string;
+}): Promise<boolean> {
   const url = process.env.SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_KEY!;
+  const now = new Date();
+  const expiraEm = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const res = await fetch(`${url}/rest/v1/acessos`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      Prefer: "return=minimal",
+  const tentativas = [
+    // Schema novo (order_ref)
+    {
+      email: data.email,
+      nome: data.nome,
+      order_id: data.order_id,
+      order_ref: data.accessCode,
+      usado: false,
+      criado_em: now.toISOString(),
     },
-    body: JSON.stringify(data),
-  });
+    // Schema legado (token + expira_em obrigatório)
+    {
+      email: data.email,
+      token: data.accessCode,
+      order_id: data.order_id,
+      usado: false,
+      expira_em: expiraEm,
+      criado_em: now.toISOString(),
+    },
+  ];
 
-  if (!res.ok) {
-    console.error("[Supabase] Status:", res.status, await res.text());
+  for (const payload of tentativas) {
+    const res = await fetch(`${url}/rest/v1/acessos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) return true;
+
+    console.error("[Supabase] Tentativa de insert falhou:", res.status, await res.text());
   }
 
-  return res.ok;
+  return false;
 }
 
 async function supabaseRevogar(email: string): Promise<void> {

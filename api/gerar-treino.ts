@@ -40,20 +40,37 @@ export default async function handler(req: any, res: any) {
   const url = process.env.SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_KEY!;
 
-  const buscaRes = await fetch(
-    `${url}/rest/v1/acessos?order_ref=eq.${encodeURIComponent(order_code)}&select=*&limit=1`,
-    { headers: { apikey: key, Authorization: `Bearer ${key}` } }
-  );
-  const lista = await buscaRes.json();
-  const registro = lista?.[0];
+  let registro: any = null;
+  let campoEncontrado: "order_ref" | "token" | null = null;
+  for (const campo of ["order_ref", "token"] as const) {
+    const buscaRes = await fetch(
+      `${url}/rest/v1/acessos?${campo}=eq.${encodeURIComponent(order_code)}&select=*&order=criado_em.desc&limit=1`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+    );
+
+    if (!buscaRes.ok) {
+      continue;
+    }
+
+    const lista = await buscaRes.json();
+    if (Array.isArray(lista) && lista[0]) {
+      registro = lista[0];
+      campoEncontrado = campo;
+      break;
+    }
+  }
 
   if (!registro || registro.usado) {
     return res.status(403).json({ erro: "token_invalido" });
   }
 
+  if (!campoEncontrado) {
+    return res.status(403).json({ erro: "token_invalido" });
+  }
+
   // PATCH condicional com usado=eq.false evita race condition
   const patchRes = await fetch(
-    `${url}/rest/v1/acessos?order_ref=eq.${encodeURIComponent(order_code)}&usado=eq.false`,
+    `${url}/rest/v1/acessos?${campoEncontrado}=eq.${encodeURIComponent(order_code)}&usado=eq.false`,
     {
       method: "PATCH",
       headers: {
