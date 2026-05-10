@@ -8,15 +8,29 @@ const normalizePtBrNumber = (value: unknown) => {
   return value;
 };
 
-const coercePtBrInt = z.preprocess(normalizePtBrNumber, z.coerce.number().int());
-const coercePtBrFloat = z.preprocess(normalizePtBrNumber, z.coerce.number());
+const idadeSchema = z.preprocess(
+  normalizePtBrNumber,
+  z.coerce.number().int().min(14).max(100)
+);
+const pesoSchema = z.preprocess(
+  normalizePtBrNumber,
+  z.coerce.number().min(30).max(300)
+);
+const alturaSchema = z.preprocess(
+  normalizePtBrNumber,
+  z.coerce.number().min(100).max(250)
+);
+const diasSchema = z.preprocess(
+  normalizePtBrNumber,
+  z.coerce.number().int().min(2).max(7)
+);
 
 const schema = z.object({
   order_code: z.string().min(1),
-  idade: coercePtBrInt.min(14).max(100),
-  peso: coercePtBrFloat.min(30).max(300),
-  altura: coercePtBrFloat.min(100).max(250),
-  dias: coercePtBrInt.min(2).max(7),
+  idade: idadeSchema,
+  peso: pesoSchema,
+  altura: alturaSchema,
+  dias: diasSchema,
   objetivo: z.enum(["hipertrofia", "definicao", "emagrecimento"]),
   nivel: z.enum(["iniciante", "intermediario", "avancado"]),
   local: z.enum(["academia", "casa", "sem_equipamento"]),
