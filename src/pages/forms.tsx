@@ -187,13 +187,25 @@ function FormularioContent({ order_code }: { order_code: string }) {
         body: JSON.stringify({ ...form, order_code }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (data.erro === "token_invalido") {
         setLoading(false);
         alert(
           "Seu link de acesso não é mais válido. Entre em contato com o suporte."
         );
+        return;
+      }
+
+      if (!res.ok) {
+        setLoading(false);
+        alert("Erro ao gerar o treino. Tente novamente em instantes.");
+        return;
+      }
+
+      if (!data?.resultado || typeof data.resultado !== "string") {
+        setLoading(false);
+        alert("Não foi possível gerar seu treino agora. Tente novamente.");
         return;
       }
 

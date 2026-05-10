@@ -30,77 +30,49 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const parsed = schema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ erro: "dados_invalidos", detalhes: parsed.error.flatten().fieldErrors });
-  }
+  try {
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ erro: "dados_invalidos", detalhes: parsed.error.flatten().fieldErrors });
+    }
 
-  const { order_code, idade, peso, altura, dias, objetivo, nivel, local, limitacoes } = parsed.data;
+    const { order_code, idade, peso, altura, dias, objetivo, nivel, local, limitacoes } = parsed.data;
 
-  const url = process.env.SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_KEY!;
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_KEY;
+    const openaiKey = process.env.OPENAI_API_KEY;
 
-  let registro: any = null;
-  let campoEncontrado: "order_ref" | "order_id" | "token" | null = null;
-  for (const campo of ["order_ref", "order_id", "token"] as const) {
+    if (!url || !key || !openaiKey) {
+      console.error("[gerar-treino] Variáveis de ambiente ausentes");
+      return res.status(500).json({ erro: "erro_servidor" });
+    }
+
     const buscaRes = await fetch(
-      `${url}/rest/v1/acessos?${campo}=eq.${encodeURIComponent(order_code)}&select=*&order=criado_em.desc&limit=1`,
+      `${url}/rest/v1/acessos?order_ref=eq.${encodeURIComponent(order_code)}&select=*&limit=1`,
       { headers: { apikey: key, Authorization: `Bearer ${key}` } }
     );
-
     if (!buscaRes.ok) {
-      const body = await buscaRes.text();
-      if (!body.includes('"code":"42703"')) {
-        console.error(`[Supabase] Erro na consulta por ${campo}:`, body);
-      }
-      continue;
+      console.error("[Supabase] Erro na consulta:", await buscaRes.text());
+      return res.status(500).json({ erro: "erro_servidor" });
     }
 
     const lista = await buscaRes.json();
-    if (Array.isArray(lista) && lista[0]) {
-      registro = lista[0];
-      campoEncontrado = campo;
-      break;
+    const registro = lista?.[0];
+
+    if (!registro || registro.usado) {
+      return res.status(403).json({ erro: "token_invalido" });
     }
-  }
 
-  if (!registro || registro.usado) {
-    return res.status(403).json({ erro: "token_invalido" });
-  }
+    const imc = peso / ((altura / 100) ** 2);
+    const imcClassificacao =
+      imc < 18.5 ? "abaixo do peso" :
+      imc < 25   ? "peso adequado" :
+      imc < 30   ? "sobrepeso" :
+                  "obesidade grau I ou superior";
 
-  if (!campoEncontrado) {
-    return res.status(403).json({ erro: "token_invalido" });
-  }
+    const openai = new OpenAI({ apiKey: openaiKey });
 
-  // PATCH condicional com usado=eq.false evita race condition
-  const patchRes = await fetch(
-    `${url}/rest/v1/acessos?${campoEncontrado}=eq.${encodeURIComponent(order_code)}&usado=eq.false`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "Prefer": "return=representation",
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-      },
-      body: JSON.stringify({ usado: true }),
-    }
-  );
-  const patchData = await patchRes.json();
-  if (!Array.isArray(patchData) || patchData.length === 0) {
-    return res.status(403).json({ erro: "token_invalido" });
-  }
-
-  const imc = peso / ((altura / 100) ** 2);
-  const imcClassificacao =
-    imc < 18.5 ? "abaixo do peso" :
-    imc < 25   ? "peso adequado" :
-    imc < 30   ? "sobrepeso" :
-                 "obesidade grau I ou superior";
-
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-  const prompt = `Você é um Professor de Educação Física com CREF ativo, especializado em prescrição de exercícios, fisiologia do esforço e periodização do treinamento. Seu papel é elaborar um plano de treinamento completo, seguro e individualizado, como faria em uma avaliação física presencial.
+    const prompt = `Você é um Professor de Educação Física com CREF ativo, especializado em prescrição de exercícios, fisiologia do esforço e periodização do treinamento. Seu papel é elaborar um plano de treinamento completo, seguro e individualizado, como faria em uma avaliação física presencial.
 
 FICHA DE AVALIAÇÃO DO ALUNO:
 - Idade: ${idade} anos
@@ -197,21 +169,52 @@ Crie um protocolo simples para o aluno acompanhar sua evolução:
 - Critérios para considerar o programa bem-sucedido ao final dos 90 dias
 `;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.4,
-    max_tokens: 4000,
-    messages: [
-      {
-        role: "system",
-        content:
-          "Você é um Professor de Educação Física com CREF ativo, especializado em prescrição de exercícios e periodização científica. Elabore planos de treinamento completos, seguros e individualizados. Use linguagem técnica mas acessível — seus alunos não têm acompanhamento presencial e dependem da clareza das suas instruções para treinar com segurança e eficiência.",
-      },
-      { role: "user", content: prompt },
-    ],
-  });
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.4,
+      max_tokens: 4000,
+      messages: [
+        {
+          role: "system",
+          content:
+            "Você é um Professor de Educação Física com CREF ativo, especializado em prescrição de exercícios e periodização científica. Elabore planos de treinamento completos, seguros e individualizados. Use linguagem técnica mas acessível — seus alunos não têm acompanhamento presencial e dependem da clareza das suas instruções para treinar com segurança e eficiência.",
+        },
+        { role: "user", content: prompt },
+      ],
+    });
 
-  res.status(200).json({
-    resultado: response.choices[0].message.content,
-  });
+    const resultado = response.choices?.[0]?.message?.content?.trim();
+    if (!resultado) {
+      return res.status(502).json({ erro: "falha_geracao" });
+    }
+
+    // Marca como usado apenas após gerar o treino com sucesso.
+    const patchRes = await fetch(
+      `${url}/rest/v1/acessos?order_ref=eq.${encodeURIComponent(order_code)}&usado=eq.false`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Prefer": "return=representation",
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+        },
+        body: JSON.stringify({ usado: true }),
+      }
+    );
+    if (!patchRes.ok) {
+      console.error("[Supabase] Erro ao marcar usado:", await patchRes.text());
+      return res.status(500).json({ erro: "erro_servidor" });
+    }
+
+    const patchData = await patchRes.json();
+    if (!Array.isArray(patchData) || patchData.length === 0) {
+      return res.status(403).json({ erro: "token_invalido" });
+    }
+
+    return res.status(200).json({ resultado });
+  } catch (err) {
+    console.error("[gerar-treino] Erro inesperado:", err);
+    return res.status(500).json({ erro: "erro_servidor" });
+  }
 }
