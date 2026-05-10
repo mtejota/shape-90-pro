@@ -2,11 +2,11 @@ import { XCircle } from "lucide-react";
 import AnimatedSection, { StaggerItem } from "@/components/AnimatedSection";
 
 const pains = [
-  "Treina e não cresce",
+  "Começa a treinar e para depois de poucos dias",
   "Não sabe qual treino seguir",
-  "Vive copiando treino aleatório da internet",
-  "Não vê resultado no espelho",
-  "Se sente pequeno perto dos outros",
+  "Treina sem saber se está fazendo certo",
+  "Quer ganhar massa, perder gordura ou definir, mas não tem direção",
+  "Vive salvando treino da internet e nunca segue um plano de verdade",
 ];
 
 const PainSection = () => {
@@ -14,9 +14,9 @@ const PainSection = () => {
     <section className="py-20 md:py-28 bg-secondary/50">
       <div className="container">
         <AnimatedSection variant="blur">
-          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase text-center mb-12">
+          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase leading-[1.12] text-center mb-12">
             Se você se identifica com isso,{" "}
-            <span className="text-gradient-red">essa página é pra você:</span>
+            <span className="block mt-2 text-gradient-red">o Shape 90D foi feito para você:</span>
           </h2>
         </AnimatedSection>
         <div className="max-w-2xl mx-auto space-y-5">

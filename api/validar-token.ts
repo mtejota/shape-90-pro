@@ -1,19 +1,30 @@
 export default async function handler(req: any, res: any) {
-  const order_code =
+  if (req.method !== "GET" && req.method !== "POST") {
+    return res.status(405).json({ valido: false, motivo: "metodo_nao_permitido" });
+  }
+
+  const rawOrderCode =
     req.method === "GET" ? req.query?.order_code : req.body?.order_code;
+  const order_code =
+    typeof rawOrderCode === "string" ? rawOrderCode.trim() : rawOrderCode;
 
   if (!order_code || typeof order_code !== "string") {
     return res.status(400).json({ valido: false, motivo: "token_ausente" });
   }
 
-  const url = process.env.SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_KEY!;
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+
+  if (!url || !key) {
+    console.error("[validar-token] Variáveis de ambiente do Supabase ausentes");
+    return res.status(500).json({ valido: false, motivo: "erro_servidor" });
+  }
 
   let registro: any = null;
 
   try {
     const response = await fetch(
-      `${url}/rest/v1/acessos?order_ref=eq.${encodeURIComponent(order_code)}&select=*&limit=1`,
+      `${url}/rest/v1/acessos?order_ref=eq.${encodeURIComponent(order_code)}&select=*&order=criado_em.desc&limit=1`,
       {
         headers: {
           apikey: key,

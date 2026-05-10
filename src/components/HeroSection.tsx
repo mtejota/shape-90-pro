@@ -33,13 +33,13 @@ const HeroSection = () => {
             Projeto Shape 90D
           </motion.span>
           <motion.h1
-            className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold uppercase leading-[0.95]"
+            className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold uppercase leading-[1.08]"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.7 }}
           >
-            Cansado de treinar{" "}
-            <span className="text-gradient-red">e continua sem resultados?</span>
+            Pare de treinar no achismo.{" "}
+            <span className="text-gradient-red">Transforme seu corpo em 90 dias.</span>
           </motion.h1>
           <motion.p
             className="text-lg md:text-xl text-muted-foreground max-w-lg"
@@ -47,8 +47,8 @@ const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
           >
-            Receba um plano de treino personalizado para os próximos 90 dias e
-            comece a transformar seu shape de forma estratégica.
+            Responda um formulário simples e receba um plano de treino
+            personalizado para seu objetivo, nível, rotina e realidade.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -56,7 +56,7 @@ const HeroSection = () => {
             transition={{ delay: 1.1, type: "spring" }}
           >
             <Button variant="cta" size="xl" onClick={scrollToCta}>
-              QUERO MEU SHAPE AGORA
+              QUERO MEU PLANO DE 90 DIAS
             </Button>
           </motion.div>
           <motion.p
@@ -66,7 +66,7 @@ const HeroSection = () => {
             transition={{ delay: 1.4 }}
           >
             <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            +230 alunos já transformaram o shape
+            +230 alunos já começaram sua transformação
           </motion.p>
         </div>
       </div>

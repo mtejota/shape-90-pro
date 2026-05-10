@@ -42,9 +42,9 @@ const OfferSection = () => {
       <div className="container">
         <div className="max-w-xl mx-auto text-center space-y-8">
           <AnimatedSection>
-            <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase">
-              Invista no seu{" "}
-              <span className="text-gradient-red">shape hoje.</span>
+            <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase leading-[1.12]">
+              Comece seu{" "}
+              <span className="text-gradient-red">plano de 90 dias hoje.</span>
             </h2>
           </AnimatedSection>
 
@@ -68,8 +68,20 @@ const OfferSection = () => {
                 </motion.span>
               </div>
               <p className="text-muted-foreground">
-                Plano de treino personalizado de 90 dias
+                Plano de treino personalizado para seu objetivo, nível e rotina
               </p>
+              <div className="text-left">
+                <p className="text-sm font-semibold uppercase tracking-wide mb-2">
+                  Você vai receber:
+                </p>
+                <p className="text-sm text-muted-foreground">Plano de treino personalizado para 90 dias</p>
+                <p className="text-sm text-muted-foreground">Divisão semanal de treino</p>
+                <p className="text-sm text-muted-foreground">Exercícios organizados por objetivo</p>
+                <p className="text-sm text-muted-foreground">Séries e repetições definidas</p>
+                <p className="text-sm text-muted-foreground">Estratégia de progressão</p>
+                <p className="text-sm text-muted-foreground">Orientações básicas para melhorar seus resultados</p>
+                <p className="text-sm text-muted-foreground">Acesso ao formulário logo após a compra</p>
+              </div>
               
                 <a href="https://pay.kiwify.com.br/RSdvsfe"
                 target="_blank"
@@ -77,7 +89,7 @@ const OfferSection = () => {
                 className="w-full block"
               >
                 <Button variant="cta" size="xl" className="w-full">
-                  COMEÇAR MEU PROJETO AGORA
+                  COMEÇAR MEU PLANO AGORA
                 </Button>
               </a>
               <div className="flex flex-col gap-2">
@@ -103,8 +115,8 @@ const OfferSection = () => {
                 </h3>
               </div>
               <p className="text-muted-foreground text-sm">
-                Se em até 7 dias você achar que o produto não é para você, pode
-                solicitar reembolso. Sem perguntas.
+                Você tem 7 dias de garantia. Se achar que o plano não é para
+                você, pode solicitar o reembolso dentro desse prazo.
               </p>
             </div>
           </AnimatedSection>

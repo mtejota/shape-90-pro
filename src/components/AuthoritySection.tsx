@@ -2,9 +2,9 @@ import { Quote } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
 
 const quotes = [
-  "Treinar sem estratégia é o motivo pelo qual você não evolui.",
-  "Resultado vem de consistência e planejamento.",
-  "Quem treina com método, constrói um shape de verdade.",
+  "O problema não é falta de força de vontade. É falta de um plano claro para seguir.",
+  "Resultado vem de constância, direção e planejamento.",
+  "Quem treina com método para de depender de motivação.",
 ];
 
 const AuthoritySection = () => {

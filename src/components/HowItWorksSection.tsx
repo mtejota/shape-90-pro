@@ -1,9 +1,9 @@
 import AnimatedSection from "@/components/AnimatedSection";
 
 const steps = [
-  { num: "01", title: "Realize a compra", desc: "Acesso imediato e seguro." },
-  { num: "02", title: "Responda o formulário", desc: "Perguntas simples sobre seu perfil e rotina." },
-  { num: "03", title: "Receba seu plano", desc: "Personalizado e pronto para seguir." },
+  { num: "01", title: "Realize a compra", desc: "Compra rápida, segura e com acesso imediato ao próximo passo." },
+  { num: "02", title: "Responda o formulário", desc: "Informe seu objetivo, nível, rotina, medidas e preferências de treino." },
+  { num: "03", title: "Receba seu plano personalizado", desc: "Um plano de treino estruturado para 90 dias, feito para você seguir com clareza." },
 ];
 
 const HowItWorksSection = () => {
@@ -11,7 +11,7 @@ const HowItWorksSection = () => {
     <section className="py-20 md:py-28 bg-secondary/50">
       <div className="container">
         <AnimatedSection variant="down">
-          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase text-center mb-14">
+          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase leading-[1.12] text-center mb-14">
             Como <span className="text-gradient-red">funciona</span>
           </h2>
         </AnimatedSection>

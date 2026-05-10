@@ -3,10 +3,10 @@ import AnimatedSection, { StaggerItem } from "@/components/AnimatedSection";
 
 const benefits = [
   "Divisão semanal estratégica",
-  "Exercícios organizados",
+  "Exercícios organizados por objetivo",
   "Séries e repetições definidas",
   "Estratégia de progressão",
-  "Guia básico para alimentação focada em ganho de massa",
+  "Orientações básicas alinhadas ao seu objetivo",
   "Estrutura pensada para 90 dias",
 ];
 
@@ -15,13 +15,14 @@ const SolutionSection = () => {
     <section className="py-20 md:py-28">
       <div className="container">
         <AnimatedSection variant="zoom">
-          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase text-center mb-6">
+          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase leading-[1.12] text-center mb-6">
             O Projeto Shape 90D foi criado para{" "}
-            <span className="text-gradient-red">resolver exatamente isso.</span>
+            <span className="text-gradient-red">te dar clareza, direção e um plano real.</span>
           </h2>
           <p className="text-muted-foreground text-center text-lg max-w-2xl mx-auto mb-14">
-            Você responde algumas perguntas simples e recebe um plano de treino
-            personalizado baseado nos seus dados físicos e rotina.
+            Você responde algumas perguntas sobre seu corpo, objetivo e rotina.
+            A partir disso, recebe um treino organizado para seguir pelos
+            próximos 90 dias.
           </p>
         </AnimatedSection>
         <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto">

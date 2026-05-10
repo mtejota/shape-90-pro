@@ -13,7 +13,7 @@ const testimonials = [
     age: "21 anos",
     period: "90 dias",
     quote:
-      "Sempre fui o magrelo do grupo. Em 3 meses ganhei 7kg de massa e finalmente tenho um shape que respeita.",
+      "Eu treinava sem consistência e sem direção. Com um plano claro, consegui evoluir muito em 90 dias.",
   },
   {
     image: t1,
@@ -37,7 +37,7 @@ const testimonials = [
     age: "25 anos",
     period: "90 dias",
     quote:
-      "Definição que eu queria há anos chegou em 3 meses seguindo o protocolo. Insano.",
+      "A definição que eu buscava começou a aparecer quando passei a seguir um método de verdade.",
   },
 ];
 
@@ -49,12 +49,12 @@ const TestimonialsSection = () => {
           <span className="inline-block text-primary font-heading uppercase tracking-widest text-sm mb-4">
             Resultados Reais
           </span>
-          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase mb-4">
-            Transformações de quem
-            <span className="block mt-2 text-gradient-red">parou de enrolar</span>
+          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase leading-[1.12] mb-4">
+            Resultados de quem
+            <span className="block mt-2 text-gradient-red">parou de treinar no achismo</span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Pessoas comuns que aplicaram o método Shape 90D e viraram o jogo em apenas 3 meses.
+            Pessoas comuns que seguiram um plano estruturado e começaram a ver evolução com mais direção.
           </p>
         </AnimatedSection>
 
@@ -101,6 +101,9 @@ const TestimonialsSection = () => {
           <p className="mb-6 text-2xl md:text-3xl font-semibold text-foreground">
             O próximo antes e depois pode ser o{" "}
             <span className="text-primary font-extrabold text-3xl md:text-4xl">seu.</span>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Os resultados podem variar de acordo com rotina, alimentação, constância e execução do plano.
           </p>
         </AnimatedSection>
       </div>

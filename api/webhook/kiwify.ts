@@ -24,25 +24,36 @@ export default async function handler(req: any, res: any) {
     }
   }
 
-  // A Kiwify às vezes envia os dados direto na raiz, às vezes dentro de "order"
+  // A Kiwify pode variar o formato do payload entre integrações.
+  // Suportamos dados na raiz e dentro de "order", com chaves em formatos diferentes.
   const order = req.body?.order ?? req.body;
-  const event = order?.webhook_event_type;
-  const Customer = order?.Customer;
-  const order_id = order?.order_id;
-  const order_ref = order?.order_ref;
+  const event =
+    order?.webhook_event_type ??
+    order?.event ??
+    req.body?.event ??
+    req.body?.webhook_event_type;
+  const customer = order?.Customer ?? order?.customer ?? req.body?.Customer ?? req.body?.customer;
+  const order_id = order?.order_id ?? order?.id ?? req.body?.order_id ?? req.body?.id;
+  const order_ref =
+    order?.order_ref ??
+    order?.reference ??
+    req.body?.order_ref ??
+    req.body?.reference;
   console.log(`[Kiwify] Evento recebido: ${event} | Pedido: ${order_id} | Ref: ${order_ref}`);
 
   // ── 2. Pagamento aprovado ────────────────────────────────────────────────────
-  if (event === "order_approved") {
-    const email = Customer?.email;
-    const nome = Customer?.full_name || "Cliente";
+  if (isPaidEvent(event)) {
+    const email = customer?.email;
+    const nome = customer?.full_name || customer?.name || "Cliente";
+    // Fallback importante: se order_ref não vier, usa order_id para casar com ?order_code do checkout.
+    const accessCode = order_ref || order_id;
 
     if (!email) {
       return res.status(400).json({ error: "Email não encontrado no payload" });
     }
 
-    if (!order_ref) {
-      return res.status(400).json({ error: "order_ref não encontrado no payload" });
+    if (!accessCode) {
+      return res.status(400).json({ error: "order_ref/order_id não encontrado no payload" });
     }
 
     // ── Salva no Supabase ──────────────────────────────────────────────────────
@@ -50,7 +61,7 @@ export default async function handler(req: any, res: any) {
       email,
       nome,
       order_id,
-      order_ref,   // esse é o valor que vai aparecer como ?order_code= na URL
+      order_ref: accessCode, // esse é o valor usado como ?order_code= na URL
       usado: false,
       criado_em: new Date().toISOString(),
     });
@@ -60,13 +71,13 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ error: "Erro ao registrar acesso" });
     }
 
-    console.log(`[OK] Acesso registrado para ${email} com order_ref=${order_ref}`);
-    return res.status(200).json({ ok: true });
+    console.log(`[OK] Acesso registrado para ${email} com order_ref=${accessCode}`);
+    return res.status(200).json({ ok: true, order_ref: accessCode });
   }
 
   // ── 3. Reembolso — bloqueia o acesso ────────────────────────────────────────
-  if (event === "order_refunded") {
-    const email = Customer?.email;
+  if (isRefundEvent(event)) {
+    const email = customer?.email;
     if (email) {
       await supabaseRevogar(email);
       console.log(`[OK] Acesso revogado para ${email}`);
@@ -75,6 +86,23 @@ export default async function handler(req: any, res: any) {
   }
 
   return res.status(200).json({ ok: true, ignored: true });
+}
+
+function normalizeEvent(value: unknown): string {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[.\s-]/g, "_");
+}
+
+function isPaidEvent(value: unknown): boolean {
+  const ev = normalizeEvent(value);
+  return ev === "order_approved" || ev === "order_paid";
+}
+
+function isRefundEvent(value: unknown): boolean {
+  const ev = normalizeEvent(value);
+  return ev === "order_refunded" || ev === "order_refund";
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

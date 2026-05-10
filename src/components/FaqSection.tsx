@@ -8,16 +8,32 @@ import AnimatedSection from "@/components/AnimatedSection";
 
 const faqs = [
   {
-    q: "Funciona para iniciantes?",
-    a: "Sim! O plano é personalizado com base no seu nível de experiência. Se você é iniciante, os exercícios e a progressão serão adaptados para você.",
+    q: "O treino é realmente personalizado?",
+    a: "Sim. Após a compra, você responde um formulário com informações sobre seu objetivo, nível, rotina e realidade. Com base nisso, seu plano é montado de forma personalizada.",
   },
   {
-    q: "Posso treinar em casa?",
-    a: "O plano é focado em treinos na academia com equipamentos. Se você treina em casa com equipamentos básicos, informe no formulário e faremos o possível para adaptar.",
+    q: "Funciona para quem quer emagrecer?",
+    a: "Sim. O plano pode ser direcionado para perda de gordura, definição, ganho de massa ou retomada de rotina, de acordo com o seu objetivo.",
+  },
+  {
+    q: "Funciona para mulheres?",
+    a: "Sim. O Shape 90D é feito com base no objetivo e rotina de cada pessoa, independente do gênero.",
+  },
+  {
+    q: "Funciona para iniciantes?",
+    a: "Sim. O plano pode ser adaptado para quem está começando, voltando a treinar ou ainda não sabe qual treino seguir.",
+  },
+  {
+    q: "Como recebo meu plano depois da compra?",
+    a: "Após a compra, você será direcionado para responder o formulário. Depois disso, seu plano será preparado com base nas suas respostas.",
+  },
+  {
+    q: "Preciso de academia?",
+    a: "Depende da sua realidade. No formulário você informa onde pretende treinar, e o plano será pensado com base nas informações enviadas.",
   },
   {
     q: "Preciso de suplementação?",
-    a: "Não é obrigatório. O plano inclui um guia básico de alimentação focado em ganho de massa. Suplementos podem ajudar, mas não são essenciais.",
+    a: "Não é obrigatório. O plano inclui orientações básicas alinhadas ao seu objetivo. Suplementos podem ajudar, mas não são essenciais.",
   },
   {
     q: "Em quanto tempo começo a ver resultado?",
@@ -30,7 +46,7 @@ const FaqSection = () => {
     <section className="py-20 md:py-28">
       <div className="container">
         <AnimatedSection variant="blur">
-          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase text-center mb-12">
+          <h2 className="font-heading text-3xl md:text-5xl font-bold uppercase leading-[1.12] text-center mb-12">
             Perguntas <span className="text-gradient-red">frequentes</span>
           </h2>
         </AnimatedSection>
