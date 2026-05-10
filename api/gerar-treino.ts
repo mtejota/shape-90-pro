@@ -1,19 +1,22 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
-const coercePtBrNumber = z.preprocess((value) => {
+const normalizePtBrNumber = (value: unknown) => {
   if (typeof value === "string") {
     return value.replace(",", ".").trim();
   }
   return value;
-}, z.coerce.number());
+};
+
+const coercePtBrInt = z.preprocess(normalizePtBrNumber, z.coerce.number().int());
+const coercePtBrFloat = z.preprocess(normalizePtBrNumber, z.coerce.number());
 
 const schema = z.object({
   order_code: z.string().min(1),
-  idade: coercePtBrNumber.int().min(14).max(100),
-  peso: coercePtBrNumber.min(30).max(300),
-  altura: coercePtBrNumber.min(100).max(250),
-  dias: coercePtBrNumber.int().min(2).max(7),
+  idade: coercePtBrInt.min(14).max(100),
+  peso: coercePtBrFloat.min(30).max(300),
+  altura: coercePtBrFloat.min(100).max(250),
+  dias: coercePtBrInt.min(2).max(7),
   objetivo: z.enum(["hipertrofia", "definicao", "emagrecimento"]),
   nivel: z.enum(["iniciante", "intermediario", "avancado"]),
   local: z.enum(["academia", "casa", "sem_equipamento"]),
