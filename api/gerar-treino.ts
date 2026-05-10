@@ -41,8 +41,8 @@ export default async function handler(req: any, res: any) {
   const key = process.env.SUPABASE_SERVICE_KEY!;
 
   let registro: any = null;
-  let campoEncontrado: "order_ref" | "token" | null = null;
-  for (const campo of ["order_ref", "token"] as const) {
+  let campoEncontrado: "order_ref" | "order_id" | "token" | null = null;
+  for (const campo of ["order_ref", "order_id", "token"] as const) {
     const buscaRes = await fetch(
       `${url}/rest/v1/acessos?${campo}=eq.${encodeURIComponent(order_code)}&select=*&order=criado_em.desc&limit=1`,
       { headers: { apikey: key, Authorization: `Bearer ${key}` } }

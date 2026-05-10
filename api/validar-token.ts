@@ -24,23 +24,29 @@ export default async function handler(req: any, res: any) {
   let registro: any = null;
 
   try {
-    const response = await fetch(
-      `${url}/rest/v1/acessos?order_ref=eq.${encodeURIComponent(order_code)}&select=*&order=criado_em.desc&limit=1`,
-      {
-        headers: {
-          apikey: key,
-          Authorization: `Bearer ${key}`,
-        },
+    for (const campo of ["order_ref", "order_id"] as const) {
+      const response = await fetch(
+        `${url}/rest/v1/acessos?${campo}=eq.${encodeURIComponent(order_code)}&select=*&order=criado_em.desc&limit=1`,
+        {
+          headers: {
+            apikey: key,
+            Authorization: `Bearer ${key}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        console.error(`[Supabase] Erro na consulta por ${campo}:`, await response.text());
+        continue;
       }
-    );
 
-    if (!response.ok) {
-      console.error("[Supabase] Erro na consulta por order_ref:", await response.text());
-      return res.status(500).json({ valido: false, motivo: "erro_servidor" });
+      const lista = await response.json();
+      const encontrado = Array.isArray(lista) ? (lista[0] ?? null) : null;
+      if (encontrado) {
+        registro = encontrado;
+        break;
+      }
     }
-
-    const lista = await response.json();
-    registro = Array.isArray(lista) ? (lista[0] ?? null) : null;
   } catch (err) {
     console.error("[validar-token] Erro:", err);
     return res.status(500).json({ valido: false, motivo: "erro_servidor" });
