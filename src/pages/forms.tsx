@@ -197,6 +197,23 @@ function FormularioContent({ order_code }: { order_code: string }) {
         return;
       }
 
+      if (data.erro === "dados_invalidos") {
+        const detalhes = data?.detalhes ?? {};
+        const primeiroCampo = Object.keys(detalhes)[0];
+        const primeiraMensagem =
+          primeiroCampo && Array.isArray(detalhes[primeiroCampo])
+            ? detalhes[primeiroCampo][0]
+            : null;
+
+        setLoading(false);
+        alert(
+          primeiroCampo
+            ? `Campo inválido: ${primeiroCampo}. ${primeiraMensagem ?? "Confira os dados e tente novamente."}`
+            : "Dados inválidos no formulário. Confira os campos e tente novamente."
+        );
+        return;
+      }
+
       if (!res.ok) {
         setLoading(false);
         alert("Erro ao gerar o treino. Tente novamente em instantes.");
