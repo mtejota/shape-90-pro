@@ -129,11 +129,102 @@ function FormularioContent({ order_code }: { order_code: string }) {
   const [progresso, setProgresso] = useState(0);
   const [mensagem, setMensagem] = useState("Iniciando análise...");
   const [gerandoPDF, setGerandoPDF] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const sanitizeIntegerInput = (value: string) =>
+    value.replace(/[^\d]/g, "");
+
+  const sanitizeDecimalInput = (value: string) => {
+    let normalized = value
+      .replace(/\s/g, "")
+      .replace(/[^\d.,]/g, "")
+      .replace(",", ".");
+    const firstDot = normalized.indexOf(".");
+    if (firstDot !== -1) {
+      normalized =
+        normalized.slice(0, firstDot + 1) +
+        normalized.slice(firstDot + 1).replace(/\./g, "");
+    }
+    return normalized;
+  };
+
+  const parseNumberLoose = (raw: string) => {
+    const cleaned = sanitizeDecimalInput(raw);
+    if (!cleaned) return null;
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const normalizeHeightToCm = (raw: string) => {
+    const n = parseNumberLoose(raw);
+    if (n === null) return null;
+    if (n > 0 && n < 3) return n * 100;
+    return n;
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let nextValue = value;
+
+    if (name === "idade" || name === "dias") {
+      nextValue = sanitizeIntegerInput(value);
+    } else if (name === "peso" || name === "altura") {
+      nextValue = sanitizeDecimalInput(value);
+    }
+
+    setForm({ ...form, [name]: nextValue });
+    setFieldErrors((prev) => {
+      if (!prev[name]) return prev;
+      const copy = { ...prev };
+      delete copy[name];
+      return copy;
+    });
+  };
+
+  const validateAndNormalizeForm = () => {
+    const errors: Record<string, string> = {};
+
+    const idade = Number(form.idade);
+    if (!Number.isInteger(idade) || idade < 14 || idade > 100) {
+      errors.idade = "Informe uma idade válida entre 14 e 100.";
+    }
+
+    const peso = parseNumberLoose(form.peso);
+    if (peso === null || peso < 30 || peso > 300) {
+      errors.peso = "Informe um peso válido entre 30 e 300 kg.";
+    }
+
+    const altura = normalizeHeightToCm(form.altura);
+    if (altura === null || altura < 100 || altura > 250) {
+      errors.altura =
+        "Informe altura válida (ex: 160, 1,60 ou 1.60).";
+    }
+
+    const dias = Number(form.dias);
+    if (!Number.isInteger(dias) || dias < 2 || dias > 7) {
+      errors.dias = "Selecione entre 2 e 7 dias por semana.";
+    }
+
+    if (!form.objetivo) errors.objetivo = "Selecione seu objetivo.";
+    if (!form.nivel) errors.nivel = "Selecione seu nível.";
+    if (!form.local) errors.local = "Selecione onde vai treinar.";
+    if (form.limitacoes.length > 500) {
+      errors.limitacoes = "Limitações deve ter no máximo 500 caracteres.";
+    }
+
+    const normalizedPayload = {
+      ...form,
+      idade,
+      peso: peso ?? form.peso,
+      altura: altura ?? form.altura,
+      dias,
+      limitacoes: form.limitacoes.trim(),
+      order_code,
+    };
+
+    return { errors, normalizedPayload };
   };
 
   useEffect(() => {
@@ -177,6 +268,18 @@ function FormularioContent({ order_code }: { order_code: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const { errors, normalizedPayload } = validateAndNormalizeForm();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      const firstField = Object.keys(errors)[0];
+      const firstElement = document.querySelector(
+        `[name="${firstField}"]`
+      ) as HTMLElement | null;
+      firstElement?.focus();
+      return;
+    }
+
+    setFieldErrors({});
     setLoading(true);
     setResultado(null);
 
@@ -184,7 +287,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
       const res = await fetch("/api/gerar-treino", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, order_code }),
+        body: JSON.stringify(normalizedPayload),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -377,22 +480,34 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 placeholder="Idade"
                 required
                 onChange={handleChange}
+                inputMode="numeric"
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
               />
+              {fieldErrors.idade && (
+                <p className="text-red-400 text-xs -mt-2">{fieldErrors.idade}</p>
+              )}
               <input
                 name="peso"
                 placeholder="Peso (kg)"
                 required
                 onChange={handleChange}
+                inputMode="decimal"
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
               />
+              {fieldErrors.peso && (
+                <p className="text-red-400 text-xs -mt-2">{fieldErrors.peso}</p>
+              )}
               <input
                 name="altura"
                 placeholder="Altura (cm)"
                 required
                 onChange={handleChange}
+                inputMode="decimal"
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
               />
+              {fieldErrors.altura && (
+                <p className="text-red-400 text-xs -mt-2">{fieldErrors.altura}</p>
+              )}
 
               <select
                 name="dias"
@@ -408,6 +523,9 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 <option value="6">6 dias</option>
                 <option value="7">7 dias</option>
               </select>
+              {fieldErrors.dias && (
+                <p className="text-red-400 text-xs -mt-2">{fieldErrors.dias}</p>
+              )}
 
               <select
                 name="objetivo"
@@ -420,6 +538,9 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 <option value="definicao">Definição</option>
                 <option value="emagrecimento">Emagrecimento</option>
               </select>
+              {fieldErrors.objetivo && (
+                <p className="text-red-400 text-xs -mt-2">{fieldErrors.objetivo}</p>
+              )}
 
               <select
                 name="nivel"
@@ -432,6 +553,9 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 <option value="intermediario">Intermediário</option>
                 <option value="avancado">Avançado</option>
               </select>
+              {fieldErrors.nivel && (
+                <p className="text-red-400 text-xs -mt-2">{fieldErrors.nivel}</p>
+              )}
 
               <select
                 name="local"
@@ -444,6 +568,9 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 <option value="casa">Em casa (halteres / elásticos)</option>
                 <option value="sem_equipamento">Sem equipamento (peso corporal)</option>
               </select>
+              {fieldErrors.local && (
+                <p className="text-red-400 text-xs -mt-2">{fieldErrors.local}</p>
+              )}
 
               <input
                 name="limitacoes"
@@ -451,6 +578,9 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 onChange={handleChange}
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
               />
+              {fieldErrors.limitacoes && (
+                <p className="text-red-400 text-xs -mt-2">{fieldErrors.limitacoes}</p>
+              )}
 
               <button
                 type="submit"

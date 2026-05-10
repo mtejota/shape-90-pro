@@ -3,9 +3,27 @@ import { z } from "zod";
 
 const normalizePtBrNumber = (value: unknown) => {
   if (typeof value === "string") {
-    return value.replace(",", ".").trim();
+    let normalized = value.trim().replace(",", ".").replace(/[^0-9.]/g, "");
+    const firstDotIndex = normalized.indexOf(".");
+    if (firstDotIndex !== -1) {
+      normalized =
+        normalized.slice(0, firstDotIndex + 1) +
+        normalized.slice(firstDotIndex + 1).replace(/\./g, "");
+    }
+    return normalized;
   }
   return value;
+};
+
+const normalizeHeightInCm = (value: unknown) => {
+  const normalized = normalizePtBrNumber(value);
+  const parsed = typeof normalized === "string" ? Number(normalized) : normalized;
+
+  if (typeof parsed === "number" && Number.isFinite(parsed) && parsed > 0 && parsed < 3) {
+    return parsed * 100;
+  }
+
+  return parsed;
 };
 
 const idadeSchema = z.preprocess(
@@ -17,7 +35,7 @@ const pesoSchema = z.preprocess(
   z.coerce.number().min(30).max(300)
 );
 const alturaSchema = z.preprocess(
-  normalizePtBrNumber,
+  normalizeHeightInCm,
   z.coerce.number().min(100).max(250)
 );
 const diasSchema = z.preprocess(
