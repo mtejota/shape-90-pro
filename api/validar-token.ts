@@ -5,8 +5,9 @@ export default async function handler(req: any, res: any) {
 
   const rawOrderCode =
     req.method === "GET" ? req.query?.order_code : req.body?.order_code;
+  const firstOrderCode = Array.isArray(rawOrderCode) ? rawOrderCode[0] : rawOrderCode;
   const order_code =
-    typeof rawOrderCode === "string" ? rawOrderCode.trim() : rawOrderCode;
+    typeof firstOrderCode === "string" ? firstOrderCode.trim() : firstOrderCode;
 
   if (!order_code || typeof order_code !== "string") {
     return res.status(400).json({ valido: false, motivo: "token_ausente" });
@@ -21,41 +22,27 @@ export default async function handler(req: any, res: any) {
   }
 
   let registro: any = null;
-  let consultaOk = false;
 
   try {
-    for (const campo of ["order_ref", "token"]) {
-      const response = await fetch(
-        `${url}/rest/v1/acessos?${campo}=eq.${encodeURIComponent(order_code)}&select=*&order=criado_em.desc&limit=1`,
-        {
-          headers: {
-            apikey: key,
-            Authorization: `Bearer ${key}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const body = await response.text();
-        if (!body.includes('"code":"42703"')) {
-          console.error(`[Supabase] Erro na consulta por ${campo}:`, body);
-        }
-        continue;
+    const response = await fetch(
+      `${url}/rest/v1/acessos?order_ref=eq.${encodeURIComponent(order_code)}&select=*&order=criado_em.desc&limit=1`,
+      {
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+        },
       }
+    );
 
-      consultaOk = true;
-      const lista = await response.json();
-      if (Array.isArray(lista) && lista[0]) {
-        registro = lista[0];
-        break;
-      }
+    if (!response.ok) {
+      console.error("[Supabase] Erro na consulta por order_ref:", await response.text());
+      return res.status(500).json({ valido: false, motivo: "erro_servidor" });
     }
+
+    const lista = await response.json();
+    registro = Array.isArray(lista) ? (lista[0] ?? null) : null;
   } catch (err) {
     console.error("[validar-token] Erro:", err);
-    return res.status(500).json({ valido: false, motivo: "erro_servidor" });
-  }
-
-  if (!consultaOk) {
     return res.status(500).json({ valido: false, motivo: "erro_servidor" });
   }
 
