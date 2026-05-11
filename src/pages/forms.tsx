@@ -118,10 +118,10 @@ export default function Formulario() {
             {msg.descricao}
           </p>
           <a
-            href="/"
+            href="/acesso"
             className="inline-block bg-red-600 hover:bg-red-700 transition text-white font-bold px-8 py-3 rounded-xl text-sm"
           >
-            Ir para a página inicial
+            Tentar recuperar acesso
           </a>
           <p className="text-gray-600 text-xs mt-5">
             Problemas com o acesso? Contate o suporte respondendo o email de compra.

@@ -83,7 +83,7 @@ const OfferSection = () => {
                 <p className="text-sm text-muted-foreground">Acesso ao formulário logo após a compra</p>
               </div>
               
-                <a href="https://pay.kiwify.com.br/RSdvsfe"
+                <a href="https://pay.cakto.com.br/5qheonk_881138"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full block"
