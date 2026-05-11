@@ -31,6 +31,9 @@ const MENSAGENS_BLOQUEIO: MotivosBloqueio = {
   },
 };
 
+const LAST_ORDER_CODE_KEY = "shape90:last_order_code";
+const FORM_DRAFT_PREFIX = "shape90:form_draft:";
+
 export default function Formulario() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -41,8 +44,24 @@ export default function Formulario() {
 
   useEffect(() => {
     if (!order_code) {
+      const cachedOrderCode =
+        typeof window !== "undefined"
+          ? window.localStorage.getItem(LAST_ORDER_CODE_KEY)
+          : null;
+
+      if (cachedOrderCode) {
+        navigate(`/formulario?order_code=${encodeURIComponent(cachedOrderCode)}`, {
+          replace: true,
+        });
+        return;
+      }
+
       navigate("/", { replace: true });
       return;
+    }
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(LAST_ORDER_CODE_KEY, order_code);
     }
 
     async function verificarAcesso() {
@@ -55,6 +74,9 @@ export default function Formulario() {
         if (data.valido) {
           setStatusAcesso("liberado");
         } else {
+          if (typeof window !== "undefined") {
+            window.localStorage.removeItem(LAST_ORDER_CODE_KEY);
+          }
           setMotivoBloqueio(data.motivo || "token_invalido");
           setStatusAcesso("bloqueado");
         }
@@ -130,6 +152,27 @@ function FormularioContent({ order_code }: { order_code: string }) {
   const [mensagem, setMensagem] = useState("Iniciando análise...");
   const [gerandoPDF, setGerandoPDF] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const draftStorageKey = `${FORM_DRAFT_PREFIX}${order_code}`;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = window.localStorage.getItem(draftStorageKey);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        setForm((prev) => ({ ...prev, ...parsed }));
+      }
+    } catch {
+      window.localStorage.removeItem(draftStorageKey);
+    }
+  }, [draftStorageKey]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(draftStorageKey, JSON.stringify(form));
+  }, [form, draftStorageKey]);
 
   const sanitizeIntegerInput = (value: string) =>
     value.replace(/[^\d]/g, "");
@@ -335,6 +378,10 @@ function FormularioContent({ order_code }: { order_code: string }) {
       setTimeout(() => {
         setResultado(data.resultado);
         setLoading(false);
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem(draftStorageKey);
+          window.localStorage.removeItem(LAST_ORDER_CODE_KEY);
+        }
       }, 600);
     } catch {
       setLoading(false);
@@ -479,6 +526,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 name="idade"
                 placeholder="Idade"
                 required
+                value={form.idade}
                 onChange={handleChange}
                 inputMode="numeric"
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
@@ -490,6 +538,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 name="peso"
                 placeholder="Peso (kg)"
                 required
+                value={form.peso}
                 onChange={handleChange}
                 inputMode="decimal"
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
@@ -501,6 +550,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
                 name="altura"
                 placeholder="Altura (cm)"
                 required
+                value={form.altura}
                 onChange={handleChange}
                 inputMode="decimal"
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
@@ -512,6 +562,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
               <select
                 name="dias"
                 required
+                value={form.dias}
                 onChange={handleChange}
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
               >
@@ -530,6 +581,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
               <select
                 name="objetivo"
                 required
+                value={form.objetivo}
                 onChange={handleChange}
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
               >
@@ -545,6 +597,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
               <select
                 name="nivel"
                 required
+                value={form.nivel}
                 onChange={handleChange}
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
               >
@@ -560,6 +613,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
               <select
                 name="local"
                 required
+                value={form.local}
                 onChange={handleChange}
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
               >
@@ -575,6 +629,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
               <input
                 name="limitacoes"
                 placeholder="Lesões ou limitações físicas (opcional)"
+                value={form.limitacoes}
                 onChange={handleChange}
                 className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
               />
