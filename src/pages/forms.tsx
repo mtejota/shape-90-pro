@@ -141,6 +141,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
     peso: "",
     altura: "",
     dias: "",
+    duracao: "",
     objetivo: "",
     nivel: "",
     local: "",
@@ -265,6 +266,9 @@ function FormularioContent({ order_code }: { order_code: string }) {
       errors.dias = "Selecione entre 2 e 7 dias por semana.";
     }
 
+    if (!form.duracao || !["30","45","60","90"].includes(form.duracao)) {
+      errors.duracao = "Selecione o tempo disponível por treino.";
+    }
     if (!form.objetivo) errors.objetivo = "Selecione seu objetivo.";
     if (!form.nivel) errors.nivel = "Selecione seu nível.";
     if (!form.local) errors.local = "Selecione onde vai treinar.";
@@ -592,6 +596,23 @@ function FormularioContent({ order_code }: { order_code: string }) {
               </select>
               {fieldErrors.dias && (
                 <p className="text-red-400 text-xs -mt-2">{fieldErrors.dias}</p>
+              )}
+
+              <select
+                name="duracao"
+                required
+                value={form.duracao}
+                onChange={handleChange}
+                className="bg-black border border-zinc-700 p-3 rounded-lg text-white focus:border-red-600 outline-none"
+              >
+                <option value="">Tempo disponível por treino</option>
+                <option value="30">30 minutos</option>
+                <option value="45">45 minutos</option>
+                <option value="60">60 minutos</option>
+                <option value="90">90 minutos ou mais</option>
+              </select>
+              {fieldErrors.duracao && (
+                <p className="text-red-400 text-xs -mt-2">{fieldErrors.duracao}</p>
               )}
 
               <select

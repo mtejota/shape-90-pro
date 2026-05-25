@@ -4,13 +4,14 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const QUIZ_KEY = "shape90:quiz";
 const CHECKOUT_URL = "https://pay.cakto.com.br/5qheonk_881138";
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 9;
 
 type QuizAnswers = {
   objetivo: string;
   nivel: string;
   local: string;
   dias: string;
+  duracao: string;
   idade: string;
   peso: string;
   altura: string;
@@ -79,6 +80,18 @@ const STEPS: Step[] = [
     ],
   },
   {
+    key: "duracao",
+    question: "Quanto tempo você tem por treino?",
+    sub: "Isso define o volume e a densidade de cada sessão",
+    type: "cards",
+    options: [
+      { value: "30", label: "30 min", emoji: "⚡", desc: "Rápido e direto" },
+      { value: "45", label: "45 min", emoji: "🕐", desc: "Sessão moderada" },
+      { value: "60", label: "60 min", emoji: "💪", desc: "Treino completo" },
+      { value: "90", label: "90 min+", emoji: "🔥", desc: "Longa duração" },
+    ],
+  },
+  {
     key: "idade",
     question: "Qual é a sua idade?",
     sub: "Usamos isso para calibrar a intensidade e recuperação",
@@ -116,6 +129,7 @@ const LABEL_MAP: Record<string, Record<string, string>> = {
   objetivo: { hipertrofia: "Ganho de Massa", definicao: "Definição", emagrecimento: "Emagrecimento" },
   nivel: { iniciante: "Iniciante", intermediario: "Intermediário", avancado: "Avançado" },
   local: { academia: "Academia", casa: "Em casa", sem_equipamento: "Sem equipamento" },
+  duracao: { "30": "30 min/treino", "45": "45 min/treino", "60": "60 min/treino", "90": "90 min+/treino" },
 };
 
 const getInsights = (a: QuizAnswers) => ({
@@ -143,7 +157,7 @@ export default function Quiz() {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState<QuizAnswers>({
-    objetivo: "", nivel: "", local: "", dias: "",
+    objetivo: "", nivel: "", local: "", dias: "", duracao: "",
     idade: "", peso: "", altura: "", limitacoes: "",
   });
   const [inputValue, setInputValue] = useState("");
@@ -279,13 +293,14 @@ export default function Quiz() {
 
   const progress = ((step + 1) / TOTAL_STEPS) * 100;
   const isDaysStep = currentStep.key === "dias";
+  const isTwoColStep = (currentStep.options?.length ?? 0) === 4;
 
   return (
     <div className="min-h-screen bg-black flex flex-col overflow-x-hidden">
       <div className="px-4 pt-6 pb-4 flex-shrink-0">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-red-600 font-bold text-sm uppercase tracking-wide">Shape 90 Pro</span>
+            <span className="text-red-600 font-bold text-sm uppercase tracking-wide">Conquiste seu shape em 90 dias</span>
             <span className="text-gray-500 text-sm">{step + 1} / {TOTAL_STEPS}</span>
           </div>
           <div className="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
@@ -322,15 +337,18 @@ export default function Quiz() {
               </div>
 
               {currentStep.type === "cards" && currentStep.options && (
-                <div className={`grid gap-3 ${isDaysStep ? "grid-cols-3 sm:grid-cols-3" : "grid-cols-1"}`}>
+                <div className={`grid gap-3 ${
+                  isDaysStep ? "grid-cols-3" : isTwoColStep ? "grid-cols-2" : "grid-cols-1"
+                }`}>
                   {currentStep.options.map((opt) => {
                     const selected = answers[currentStep.key] === opt.value;
+                    const isCompact = isDaysStep || isTwoColStep;
                     return (
                       <button
                         key={opt.value}
                         onClick={() => handleCardSelect(opt.value)}
-                        className={`rounded-2xl border-2 transition-all duration-200 text-left ${
-                          isDaysStep ? "p-4 text-center flex flex-col items-center" : "p-4"
+                        className={`rounded-2xl border-2 transition-all duration-200 ${
+                          isCompact ? "p-4 text-center flex flex-col items-center" : "p-4 text-left"
                         } ${
                           selected
                             ? "border-red-600 bg-red-600/10"
@@ -343,6 +361,16 @@ export default function Quiz() {
                             <span className={`text-xs font-medium ${selected ? "text-red-400" : "text-gray-400"}`}>
                               dias/sem
                             </span>
+                          </>
+                        ) : isTwoColStep ? (
+                          <>
+                            <div className="text-3xl mb-2">{opt.emoji}</div>
+                            <div className={`font-bold text-sm ${selected ? "text-red-400" : "text-white"}`}>
+                              {opt.label}
+                            </div>
+                            {opt.desc && (
+                              <div className="text-gray-500 text-xs mt-1">{opt.desc}</div>
+                            )}
                           </>
                         ) : (
                           <>
@@ -430,6 +458,7 @@ function ResultScreen({ answers }: { answers: QuizAnswers }) {
     { label: LABEL_MAP.nivel[answers.nivel] ?? answers.nivel, red: false },
     { label: LABEL_MAP.local[answers.local] ?? answers.local, red: false },
     { label: `${answers.dias}x por semana`, red: false },
+    { label: LABEL_MAP.duracao[answers.duracao] ?? answers.duracao, red: false },
   ];
 
   return (

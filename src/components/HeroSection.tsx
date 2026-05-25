@@ -1,4 +1,4 @@
-import heroImg from "@/assets/hero-gym.jpg";
+import heroImg from "@/assets/HERONEW.png";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -30,7 +30,7 @@ const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            Projeto Shape 90D
+            Seu shape em  90 dias
           </motion.span>
           <motion.h1
             className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold uppercase leading-[1.08]"
@@ -57,7 +57,7 @@ const HeroSection = () => {
             transition={{ delay: 1.1, type: "spring" }}
           >
             <Button variant="cta" size="xl" onClick={scrollToCta}>
-              FAZER O QUIZ GRÁTIS
+              FAZER O QUIZ AGORA
             </Button>
             <p className="text-xs text-muted-foreground">
               8 perguntas · 2 minutos · sem cadastro
