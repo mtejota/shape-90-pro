@@ -1,9 +1,9 @@
 import AnimatedSection from "@/components/AnimatedSection";
 
 const steps = [
-  { num: "01", title: "Realize a compra", desc: "Compra rápida, segura e com acesso imediato ao próximo passo." },
-  { num: "02", title: "Responda o formulário", desc: "Informe seu objetivo, nível, rotina, medidas e preferências de treino." },
-  { num: "03", title: "Receba seu plano personalizado", desc: "Um plano de treino estruturado para 90 dias, feito para você seguir com clareza." },
+  { num: "01", title: "Responda o quiz", desc: "8 perguntas rápidas sobre seu objetivo, nível e rotina. Leva menos de 2 minutos." },
+  { num: "02", title: "Desbloqueie seu plano", desc: "Compra rápida e segura. Suas respostas já ficam salvas para o próximo passo." },
+  { num: "03", title: "Receba o treino personalizado", desc: "Um plano de 90 dias gerado com base exata no seu perfil, pronto para baixar em PDF." },
 ];
 
 const HowItWorksSection = () => {

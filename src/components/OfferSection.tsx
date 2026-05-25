@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, Zap, Clock, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import AnimatedSection from "@/components/AnimatedSection";
 
 const CountdownTimer = () => {
@@ -37,6 +38,7 @@ const CountdownTimer = () => {
 };
 
 const OfferSection = () => {
+  const navigate = useNavigate();
   return (
     <section id="oferta" className="py-20 md:py-28 bg-secondary/50">
       <div className="container">
@@ -80,18 +82,12 @@ const OfferSection = () => {
                 <p className="text-sm text-muted-foreground">Séries e repetições definidas</p>
                 <p className="text-sm text-muted-foreground">Estratégia de progressão</p>
                 <p className="text-sm text-muted-foreground">Orientações básicas para melhorar seus resultados</p>
-                <p className="text-sm text-muted-foreground">Acesso ao formulário logo após a compra</p>
+                <p className="text-sm text-muted-foreground">Plano gerado com base no seu perfil completo</p>
               </div>
-              
-                <a href="https://pay.cakto.com.br/5qheonk_881138"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full block"
-              >
-                <Button variant="cta" size="xl" className="w-full">
-                  COMEÇAR MEU PLANO AGORA
-                </Button>
-              </a>
+
+              <Button variant="cta" size="xl" className="w-full" onClick={() => navigate("/quiz")}>
+                FAZER O QUIZ E COMEÇAR
+              </Button>
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                   <Zap className="w-4 h-4 text-primary" />

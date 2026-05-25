@@ -33,6 +33,7 @@ const MENSAGENS_BLOQUEIO: MotivosBloqueio = {
 
 const LAST_ORDER_CODE_KEY = "shape90:last_order_code";
 const FORM_DRAFT_PREFIX = "shape90:form_draft:";
+const QUIZ_KEY = "shape90:quiz";
 
 export default function Formulario() {
   const [searchParams] = useSearchParams();
@@ -156,16 +157,30 @@ function FormularioContent({ order_code }: { order_code: string }) {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const raw = window.localStorage.getItem(draftStorageKey);
-    if (!raw) return;
 
+    const draftRaw = window.localStorage.getItem(draftStorageKey);
+    if (draftRaw) {
+      try {
+        const parsed = JSON.parse(draftRaw);
+        if (parsed && typeof parsed === "object") {
+          setForm((prev) => ({ ...prev, ...parsed }));
+        }
+      } catch {
+        window.localStorage.removeItem(draftStorageKey);
+      }
+      return;
+    }
+
+    // No draft: load quiz answers as pre-fill
+    const quizRaw = window.localStorage.getItem(QUIZ_KEY);
+    if (!quizRaw) return;
     try {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === "object") {
-        setForm((prev) => ({ ...prev, ...parsed }));
+      const quizData = JSON.parse(quizRaw);
+      if (quizData && typeof quizData === "object") {
+        setForm((prev) => ({ ...prev, ...quizData }));
       }
     } catch {
-      window.localStorage.removeItem(draftStorageKey);
+      window.localStorage.removeItem(QUIZ_KEY);
     }
   }, [draftStorageKey]);
 
@@ -381,6 +396,7 @@ function FormularioContent({ order_code }: { order_code: string }) {
         if (typeof window !== "undefined") {
           window.localStorage.removeItem(draftStorageKey);
           window.localStorage.removeItem(LAST_ORDER_CODE_KEY);
+          window.localStorage.removeItem(QUIZ_KEY);
         }
       }, 600);
     } catch {

@@ -1,4 +1,6 @@
 import { Star, Quote } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import AnimatedSection from "@/components/AnimatedSection";
 import { motion } from "framer-motion";
 import t1 from "@/assets/transformacao-1.jpg";
@@ -42,6 +44,7 @@ const testimonials = [
 ];
 
 const TestimonialsSection = () => {
+  const navigate = useNavigate();
   return (
     <section id="resultados" className="py-20 md:py-28 bg-background">
       <div className="container">
@@ -98,11 +101,20 @@ const TestimonialsSection = () => {
         </div>
 
         <AnimatedSection delay={0.3} className="text-center mt-14">
-          <p className="mb-6 text-2xl md:text-3xl font-semibold text-foreground">
-            O próximo antes e depois pode ser o{" "}
+          <p className="mb-3 text-2xl md:text-3xl font-semibold text-foreground">
+            O próximo resultado pode ser o{" "}
             <span className="text-primary font-extrabold text-3xl md:text-4xl">seu.</span>
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-sm mb-8">
+            Descubra qual plano combina com você. Leva menos de 2 minutos.
+          </p>
+          <Button variant="cta" size="xl" onClick={() => navigate("/quiz")}>
+            VER QUAL PLANO É O MEU
+          </Button>
+          <p className="text-xs text-muted-foreground mt-4">
+            Grátis · sem cadastro · resultado na hora
+          </p>
+          <p className="text-xs text-muted-foreground mt-6">
             Os resultados podem variar de acordo com rotina, alimentação, constância e execução do plano.
           </p>
         </AnimatedSection>

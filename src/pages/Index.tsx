@@ -1,5 +1,6 @@
 import HeroSection from "@/components/HeroSection";
 import PainSection from "@/components/PainSection";
+import QuizPreviewSection from "@/components/QuizPreviewSection";
 import SolutionSection from "@/components/SolutionSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import AuthoritySection from "@/components/AuthoritySection";
@@ -17,6 +18,7 @@ const Index = () => {
       <ScrollProgress />
       <HeroSection />
       <PainSection />
+      <QuizPreviewSection />
       <SolutionSection />
       <HowItWorksSection />
       <AuthoritySection />

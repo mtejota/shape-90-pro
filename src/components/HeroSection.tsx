@@ -1,11 +1,11 @@
 import heroImg from "@/assets/hero-gym.jpg";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
-  const scrollToCta = () => {
-    document.getElementById("oferta")?.scrollIntoView({ behavior: "smooth" });
-  };
+  const navigate = useNavigate();
+  const scrollToCta = () => navigate("/quiz");
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -47,17 +47,21 @@ const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
           >
-            Responda um formulário simples e receba um plano de treino
-            personalizado para seu objetivo, nível, rotina e realidade.
+            Responda 8 perguntas sobre seu corpo e rotina. Receba um plano de treino
+            de 90 dias feito exatamente para você — na hora.
           </motion.p>
           <motion.div
+            className="space-y-3"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.1, type: "spring" }}
           >
             <Button variant="cta" size="xl" onClick={scrollToCta}>
-              QUERO MEU PLANO DE 90 DIAS
+              FAZER O QUIZ GRÁTIS
             </Button>
+            <p className="text-xs text-muted-foreground">
+              8 perguntas · 2 minutos · sem cadastro
+            </p>
           </motion.div>
           <motion.p
             className="text-xs text-muted-foreground flex items-center gap-2"
@@ -66,7 +70,7 @@ const HeroSection = () => {
             transition={{ delay: 1.4 }}
           >
             <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            +230 alunos já começaram sua transformação
+            +230 alunos já descobriram seu plano ideal
           </motion.p>
         </div>
       </div>

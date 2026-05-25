@@ -1,4 +1,6 @@
 import { XCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import AnimatedSection, { StaggerItem } from "@/components/AnimatedSection";
 
 const pains = [
@@ -10,6 +12,8 @@ const pains = [
 ];
 
 const PainSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="py-20 md:py-28 bg-secondary/50">
       <div className="container">
@@ -29,6 +33,18 @@ const PainSection = () => {
             </StaggerItem>
           ))}
         </div>
+
+        <AnimatedSection delay={0.7} className="text-center mt-12">
+          <p className="text-muted-foreground text-sm mb-5">
+            A solução é mais simples do que parece — e leva 2 minutos.
+          </p>
+          <Button variant="cta" size="lg" onClick={() => navigate("/quiz")}>
+            DESCOBRIR MEU PLANO IDEAL
+          </Button>
+          <p className="text-xs text-muted-foreground mt-3">
+            rápido · sem cadastro · resultado na hora
+          </p>
+        </AnimatedSection>
       </div>
     </section>
   );
