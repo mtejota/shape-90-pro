@@ -112,7 +112,7 @@ const TestimonialsSection = () => {
             VER QUAL PLANO É O MEU
           </Button>
           <p className="text-xs text-muted-foreground mt-4">
-            Grátis · sem cadastro · resultado na hora
+            sem cadastro · resultado na hora
           </p>
           <p className="text-xs text-muted-foreground mt-6">
             Os resultados podem variar de acordo com rotina, alimentação, constância e execução do plano.

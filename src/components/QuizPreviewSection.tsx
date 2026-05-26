@@ -29,7 +29,7 @@ export default function QuizPreviewSection() {
         <div className="max-w-lg mx-auto">
           <AnimatedSection className="text-center mb-10">
             <span className="inline-block text-xs font-bold uppercase tracking-widest text-red-500 border border-red-600/30 rounded-full px-3 py-1 mb-4">
-              Quiz Gratuito
+              Quiz Rápido
             </span>
             <h2 className="font-heading text-3xl md:text-4xl font-bold uppercase leading-tight text-white mb-3">
               Responda uma pergunta<br />
@@ -78,7 +78,7 @@ export default function QuizPreviewSection() {
               </div>
 
               <p className="text-center text-gray-600 text-xs mt-5">
-                Seu plano personalizado aparece ao final · Grátis
+                Seu plano personalizado aparece ao final
               </p>
             </div>
           </AnimatedSection>
