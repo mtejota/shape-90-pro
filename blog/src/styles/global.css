@@ -1,0 +1,380 @@
+/* ==========================================================================
+   Projeto Shape 90 — Blog
+   Tokens da marca (dark + vermelho), fontes Oswald/Inter, tipografia de artigo.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --background: 0 0% 7%;
+  --surface: 0 0% 10%;
+  --surface-2: 0 0% 13%;
+  --foreground: 0 0% 95%;
+  --muted-foreground: 0 0% 62%;
+  --primary: 0 80% 50%;
+  --primary-hover: 0 85% 45%;
+  --border: 0 0% 20%;
+  --radius: 0.5rem;
+
+  --font-heading: 'Oswald', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --container: 46rem;
+  --shadow-red: 0 0 30px hsl(var(--primary) / 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin: 2.2rem 0 1rem;
+}
+
+a {
+  color: hsl(var(--primary));
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---------- Layout ---------- */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+.site-header {
+  border-bottom: 1px solid hsl(var(--border));
+  background: linear-gradient(180deg, hsl(0 0% 5%), hsl(var(--background)));
+}
+.site-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 1rem;
+}
+.brand {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: hsl(var(--foreground));
+}
+.brand:hover {
+  text-decoration: none;
+}
+.brand span {
+  color: hsl(var(--primary));
+}
+.site-nav a {
+  color: hsl(var(--muted-foreground));
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-left: 1.25rem;
+}
+.site-nav a:hover {
+  color: hsl(var(--foreground));
+  text-decoration: none;
+}
+
+.site-footer {
+  border-top: 1px solid hsl(var(--border));
+  margin-top: 4rem;
+  padding-block: 2rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.9rem;
+}
+.site-footer a {
+  color: hsl(var(--muted-foreground));
+}
+
+/* ---------- Breadcrumb ---------- */
+.breadcrumb {
+  font-size: 0.85rem;
+  color: hsl(var(--muted-foreground));
+  margin: 1.5rem 0 0.5rem;
+}
+.breadcrumb a {
+  color: hsl(var(--muted-foreground));
+}
+.breadcrumb a:hover {
+  color: hsl(var(--foreground));
+}
+
+/* ---------- Listagem de posts ---------- */
+.hero {
+  text-align: center;
+  padding: 3.5rem 0 1rem;
+}
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 0.75rem;
+}
+.hero p {
+  color: hsl(var(--muted-foreground));
+  max-width: 34rem;
+  margin-inline: auto;
+  font-size: 1.05rem;
+}
+
+.post-list {
+  list-style: none;
+  padding: 0;
+  margin: 2.5rem 0 0;
+  display: grid;
+  gap: 1.25rem;
+}
+.post-card {
+  display: block;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  background: hsl(var(--surface));
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.post-card:hover {
+  border-color: hsl(var(--primary) / 0.6);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+.post-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.4rem;
+  color: hsl(var(--foreground));
+  text-transform: none;
+}
+.post-card p {
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+}
+.post-meta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tag {
+  display: inline-block;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  border: 1px solid hsl(var(--primary) / 0.3);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+/* ---------- Artigo ---------- */
+.article-header h1 {
+  font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+  margin-bottom: 0.75rem;
+}
+.article-lead {
+  font-size: 1.15rem;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 1.5rem;
+}
+
+.prose {
+  font-size: 1.0625rem;
+}
+.prose h2 {
+  font-size: 1.6rem;
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 0.75rem;
+  margin-top: 2.5rem;
+}
+.prose h3 {
+  font-size: 1.25rem;
+  text-transform: none;
+  color: hsl(var(--foreground));
+}
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 1rem 0;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.4rem;
+}
+.prose li {
+  margin: 0.4rem 0;
+}
+.prose li::marker {
+  color: hsl(var(--primary));
+}
+.prose strong {
+  color: hsl(var(--foreground));
+  font-weight: 700;
+}
+.prose blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  background: hsl(var(--surface));
+  margin: 1.5rem 0;
+  padding: 0.75rem 1.25rem;
+  color: hsl(var(--foreground));
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.prose code {
+  background: hsl(var(--surface-2));
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+.prose th,
+.prose td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+}
+.prose th {
+  background: hsl(var(--surface-2));
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+}
+.prose tr:nth-child(even) td {
+  background: hsl(var(--surface) / 0.5);
+}
+.prose hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 2.5rem 0;
+}
+
+/* Container de tabela com scroll horizontal no mobile */
+.table-wrap {
+  overflow-x: auto;
+}
+
+/* ---------- FAQ ---------- */
+.faq {
+  margin-top: 3rem;
+}
+.faq details {
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 0.25rem 1.25rem;
+  margin: 0.75rem 0;
+  background: hsl(var(--surface));
+}
+.faq summary {
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 0.85rem 0;
+  list-style: none;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq summary::before {
+  content: '+';
+  color: hsl(var(--primary));
+  font-weight: 700;
+  margin-right: 0.6rem;
+}
+.faq details[open] summary::before {
+  content: '–';
+}
+.faq details p {
+  margin: 0 0 1rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ---------- CTA ---------- */
+.cta {
+  margin: 3rem 0 1rem;
+  padding: 2rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, hsl(0 80% 50% / 0.14), hsl(0 0% 10%));
+  border: 1px solid hsl(var(--primary) / 0.4);
+  text-align: center;
+}
+.cta h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  color: hsl(var(--foreground));
+}
+.cta p {
+  margin: 0 0 1.25rem;
+  color: hsl(var(--muted-foreground));
+}
+.btn {
+  display: inline-block;
+  background: hsl(var(--primary));
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.9rem 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-red);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.btn:hover {
+  background: hsl(var(--primary-hover));
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+/* ---------- Related ---------- */
+.related {
+  margin-top: 3rem;
+}
+.related h2 {
+  font-size: 1.3rem;
+}
+.related ul {
+  list-style: none;
+  padding: 0;
+}
+.related li {
+  margin: 0.5rem 0;
+}

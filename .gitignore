@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Astro blog (subprojeto em blog/)
+blog/node_modules
+blog/.astro
+blog/dist
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

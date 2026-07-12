@@ -1,0 +1,77 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, SITE_URL } from '../consts';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const fmt = new Intl.DateTimeFormat('pt-BR', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+});
+
+// Structured data: WebSite + Blog
+const websiteLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  url: SITE_URL,
+};
+
+const blogLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: SITE.title,
+  description: SITE.description,
+  url: `${SITE_URL}/blog`,
+  inLanguage: 'pt-BR',
+  blogPost: posts.map((p) => ({
+    '@type': 'BlogPosting',
+    headline: p.data.title,
+    description: p.data.description,
+    datePublished: p.data.pubDate.toISOString(),
+    url: `${SITE_URL}/blog/${p.id}`,
+  })),
+};
+---
+
+<Base title={SITE.title} description={SITE.description} type="website">
+  <script
+    type="application/ld+json"
+    slot="head"
+    set:html={JSON.stringify(websiteLd)}
+  />
+  <script
+    type="application/ld+json"
+    slot="head"
+    set:html={JSON.stringify(blogLd)}
+  />
+
+  <section class="hero">
+    <h1>Blog do Projeto Shape 90</h1>
+    <p>
+      Guias práticos e baseados em ciência sobre treino, hipertrofia e ganho de
+      massa muscular — para você treinar melhor e transformar seu shape.
+    </p>
+  </section>
+
+  <ul class="post-list">
+    {posts.map((post) => (
+      <li>
+        <a class="post-card" href={`/blog/${post.id}`}>
+          <div class="post-meta">
+            <time datetime={post.data.pubDate.toISOString()}>
+              {fmt.format(post.data.pubDate)}
+            </time>
+            {post.data.tags.slice(0, 2).map((t) => <span class="tag">{t}</span>)}
+          </div>
+          <h2>{post.data.title}</h2>
+          <p>{post.data.description}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
+</Base>

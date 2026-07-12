@@ -1,0 +1,25 @@
+---
+import BlogPost from '../layouts/BlogPost.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post, posts },
+  }));
+}
+
+const { post, posts } = Astro.props;
+const { Content } = await render(post);
+
+// Resolve os posts relacionados (linkagem interna) a partir dos slugs.
+const relatedPosts = post.data.related
+  .map((slug) => posts.find((p) => p.id === slug))
+  .filter((p) => p !== undefined)
+  .map((p) => ({ slug: p.id, title: p.data.title }));
+---
+
+<BlogPost {...post.data} relatedPosts={relatedPosts}>
+  <Content />
+</BlogPost>

@@ -526,7 +526,7 @@ function ResultScreen({ answers }: { answers: QuizAnswers }) {
             href={CHECKOUT_URL}
             className="block w-full bg-red-600 hover:bg-red-700 text-white font-bold py-5 rounded-2xl text-lg text-center transition shadow-lg shadow-red-900/20"
           >
-            DESBLOQUEAR MEU PLANO — R$14,90
+            DESBLOQUEAR MEU PLANO — R$29,90
           </a>
           <p className="text-center text-gray-600 text-xs">
             Acesso imediato &nbsp;|&nbsp; Pagamento seguro &nbsp;|&nbsp; 7 dias de garantia

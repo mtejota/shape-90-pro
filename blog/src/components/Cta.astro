@@ -1,0 +1,21 @@
+---
+import { CTA_HREF } from '../consts';
+
+interface Props {
+  title?: string;
+  text?: string;
+  label?: string;
+}
+
+const {
+  title = 'Quer um treino feito para o SEU objetivo?',
+  text = 'Responda 2 minutos de perguntas e receba um plano de treino personalizado de 90 dias, montado para o seu nível, rotina e meta.',
+  label = 'Montar meu treino de 90 dias',
+} = Astro.props;
+---
+
+<aside class="cta">
+  <h3>{title}</h3>
+  <p>{text}</p>
+  <a class="btn" href={CTA_HREF}>{label}</a>
+</aside>

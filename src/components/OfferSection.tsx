@@ -66,7 +66,7 @@ const OfferSection = () => {
                   viewport={{ once: true }}
                   transition={{ type: "spring", stiffness: 200 }}
                 >
-                  14,90
+                  29,90
                 </motion.span>
               </div>
               <p className="text-muted-foreground">

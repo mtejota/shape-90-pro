@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://www.projetoshape90.com.br/blog/sitemap-index.xml

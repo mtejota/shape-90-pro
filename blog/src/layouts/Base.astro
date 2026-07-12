@@ -1,0 +1,54 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import { SITE } from '../consts';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  type?: 'website' | 'article';
+  image?: string;
+  keywords?: string[];
+  publishedTime?: string;
+  modifiedTime?: string;
+}
+
+const props = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <BaseHead {...props} />
+    <!-- JSON-LD (structured data) injetado pelas páginas -->
+    <slot name="head" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a href="/blog" class="brand">PROJETO <span>SHAPE 90</span></a>
+        <nav class="site-nav">
+          <a href="/blog">Blog</a>
+          <a href="/quiz">Montar meu treino</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>
+          © {year} {SITE.name}. Conteúdo educativo sobre treino e ganho de massa.
+          Não substitui orientação de um profissional de educação física ou médico.
+        </p>
+        <p>
+          <a href="/">Página inicial</a> · <a href="/quiz">Montar meu treino de 90 dias</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
